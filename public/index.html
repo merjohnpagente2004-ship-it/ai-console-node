@@ -5,31 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Multi-AI Console</title>
 <style>
-  .download-btn-container {
-  padding: 0 4px;
-  margin-bottom: 8px;
-}
-.download-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  width: 100%;
-  padding: 12px 14px;
-  background: linear-gradient(135deg, var(--accent), #5b4bd6);
-  color: #fff;
-  font-size: 13.5px;
-  font-weight: 600;
-  text-decoration: none;
-  border-radius: calc(var(--radius-sm) + 4px);
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
-  box-shadow: 0 4px 12px rgba(139, 124, 246, 0.2);
-}
-.download-btn:hover {
-  transform: scale(1.02);
-  box-shadow: 0 6px 16px rgba(139, 124, 246, 0.3);
-  color: #fff;
-}
   :root{
     --bg-sidebar: #0b0b10;
     --bg-main: #09090d;
@@ -214,11 +189,40 @@
   .see-all{ font-size:12.5px; color: var(--text-faint); padding: 10px 10px; cursor:pointer; transition: color .18s ease; }
   .see-all:hover{ color: var(--accent); }
 
+  /* ============ SIDEBAR FOOTER ============ */
   .sidebar-footer{
     margin-top:auto;
     padding-top: 14px;
     border-top: 1px solid var(--border-soft);
   }
+
+  /* Download button (Android APK) */
+  .download-btn-container {
+    padding: 0 4px;
+    margin-bottom: 8px;
+  }
+  .download-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 12px 14px;
+    background: linear-gradient(135deg, var(--accent), #5b4bd6);
+    color: #fff;
+    font-size: 13.5px;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: calc(var(--radius-sm) + 4px);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+    box-shadow: 0 4px 12px rgba(139, 124, 246, 0.2);
+  }
+  .download-btn:hover {
+    transform: scale(1.02);
+    box-shadow: 0 6px 16px rgba(139, 124, 246, 0.3);
+    color: #fff;
+  }
+
   .user-row{
     display:flex; align-items:center; gap:10px;
     padding: 12px;
@@ -653,6 +657,11 @@
   <div class="see-all">See all</div>
 
   <div class="sidebar-footer">
+    <div class="download-btn-container">
+      <a href="/multiai.apk" download class="download-btn">
+        <span>🤖</span> Download for Android (APK)
+      </a>
+    </div>
     <div class="footer-note">
       <b>API keys</b> from .env<br>
       <span style="color:var(--ok);">●</span> Key found &nbsp; <span style="color:var(--danger);">●</span> Missing
@@ -666,12 +675,6 @@
     </div>
   </div>
 </div>
-<div class="sidebar-footer">
-  <div class="download-btn-container">
-    <a href="/multiai.apk" download class="download-btn">
-      <span>🤖</span> Download for Android (APK)
-    </a>
-  </div>
 
 <div class="main">
   <div class="topbar">
@@ -717,6 +720,9 @@
     </div>
   </div>
 </div>
+
+</body>
+</html>
 
 <script>
 const MODELS = {
