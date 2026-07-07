@@ -639,93 +639,6 @@
     .nav-item, .provider-item, .new-project-btn, .download-btn { padding: 10px 12px; }
     .brand{ font-size:14px; }
   }
-
-  /* ============ SEARCH PANEL ============ */
-  .search-panel {
-    background: rgba(12,12,17,.97);
-    backdrop-filter: blur(14px);
-    border-bottom: 1px solid rgba(255,255,255,.06);
-    padding: 16px 24px 18px;
-    display: none;
-    flex-direction: column;
-    gap: 14px;
-    max-height: 360px;
-    overflow-y: auto;
-  }
-  .search-panel.active {
-    display: flex;
-  }
-  .search-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .search-info {
-    font-size: 13px;
-    color: var(--text-dim);
-    font-weight: 600;
-  }
-  .search-panel input[type="search"] {
-    background: rgba(255,255,255,.05);
-    border: 1px solid rgba(255,255,255,.08);
-    border-radius: 18px;
-    padding: 12px 18px;
-    color: var(--text);
-    font-size: 15px;
-    outline: none;
-    width: 100%;
-  }
-  .search-panel input[type="search"]:focus {
-    border-color: var(--accent);
-  }
-  .search-results {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    max-height: 200px;
-    overflow-y: auto;
-  }
-  .search-result {
-    background: rgba(255,255,255,.03);
-    border: 1px solid rgba(255,255,255,.06);
-    border-radius: 14px;
-    padding: 12px 16px;
-    cursor: pointer;
-    text-align: left;
-    transition: background .18s ease, border-color .18s ease;
-    color: var(--text);
-  }
-  .search-result:hover {
-    background: rgba(139,124,246,.08);
-    border-color: rgba(139,124,246,.2);
-  }
-  .search-result .result-role {
-    font-size: 11px;
-    color: var(--text-faint);
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: .4px;
-    margin-bottom: 4px;
-  }
-  .search-result .result-text {
-    font-size: 14px;
-    line-height: 1.6;
-    color: var(--text-dim);
-    word-break: break-word;
-  }
-  .no-results {
-    color: var(--text-faint);
-    font-size: 14px;
-    padding: 16px;
-    text-align: center;
-  }
-  .row.highlight {
-    animation: highlightPulse .8s ease 2;
-  }
-  @keyframes highlightPulse {
-    0%, 100% { background: transparent; }
-    50% { background: rgba(139,124,246,.12); border-radius: 12px; }
-  }
 </style>
 </head>
 <body>
@@ -782,10 +695,9 @@
   <div class="see-all">See all</div>
 
   <div class="sidebar-footer">
-    <!-- ===== DOWNLOAD BUTTON - SAKTO NA ===== -->
     <div class="download-btn-container">
-      <a href="/multiai.apk" download="multiai.apk" class="download-btn">
-        📱 Download for Android (APK)
+      <a href="/multiai.apk" download class="download-btn">
+        <span></span> Download for Android (APK)
       </a>
     </div>
     <div class="footer-note">
@@ -804,17 +716,17 @@
 
 <div class="main">
   <div class="topbar">
-    <button class="icon-toggle hamburger" id="hamburgerBtn" title="Menu"><i class="ri ri-menu-line"></i></button>
+    <button class="icon-toggle hamburger" id="hamburgerBtn" title="Menu">☰</button>
     <div class="model-picker">
       <select id="modelSelect"></select>
     </div>
-    <button class="clear-btn" id="clearBtn"><i class="ri ri-refresh-line"></i> Clear chat</button>
+    <button class="clear-btn" id="clearBtn">Clear chat</button>
   </div>
 
   <div class="search-panel" id="searchPanel">
     <div class="search-header">
       <div class="search-info">Search current history</div>
-      <button class="icon-btn" id="closeSearchBtn" title="Close search"><i class="ri ri-close-line"></i></button>
+      <button class="icon-btn" id="closeSearchBtn" title="Close search">✕</button>
     </div>
     <input id="searchInput" type="search" placeholder="Type to search chat history..." autocomplete="off">
     <div class="search-results" id="searchResults">
@@ -825,12 +737,12 @@
   <div class="chat-scroll">
     <div class="chat-col" id="chatCol">
       <div class="empty-hero" id="emptyState">
-        <div class="mark-lg"><i class="ri ri-flashlight-line"></i></div>
+        <div class="mark-lg">✦</div>
         <h1>Unsa may itabang nako karon?</h1>
         <p>Pili ug provider sa wala, then type your message sa ubos.</p>
         <p style="font-size:12px;">
-          <i class="ri ri-image-2-line"></i> Pwede ra mag <kbd>Ctrl+V</kbd> para mag-paste og image/video<br>
-          <i class="ri ri-camera-line"></i> Supports: PNG, JPG, GIF, MP4, WebM, MOV
+          📸 Pwede ra mag <kbd>Ctrl+V</kbd> para mag-paste og image/video<br>
+          🎥 Supports: PNG, JPG, GIF, MP4, WebM, MOV
         </p>
       </div>
     </div>
@@ -853,7 +765,7 @@
         </div>
       </div>
       <div class="footnote">Enter to send · Shift+Enter for new line</div>
-      <div class="paste-hint"><i class="ri ri-lightbulb-line"></i> <kbd>Ctrl+V</kbd> to paste image/video · Supports: PNG, JPG, GIF, MP4, WebM</div>
+      <div class="paste-hint">💡 <kbd>Ctrl+V</kbd> to paste image/video · Supports: PNG, JPG, GIF, MP4, WebM</div>
     </div>
   </div>
 </div>
@@ -1085,8 +997,8 @@ function renderAttachmentsBar(){
 
     div.innerHTML = `
       ${previewHtml}
-      <button class="remove" data-idx="${idx}"><i class="ri ri-close-line"></i></button>
-      <span class="file-type-badge">${media.type === "video" ? '<i class="ri ri-video-line"></i>' : '<i class="ri ri-image-2-line"></i>'}</span>
+      <button class="remove" data-idx="${idx}">✕</button>
+      <span class="file-type-badge">${media.type === "video" ? "🎥" : "📸"}</span>
       <span class="file-size">${formatFileSize(media.size)}</span>
     `;
     els.attachmentsBar.appendChild(div);
@@ -1306,36 +1218,36 @@ function buildActionsRow(role, content, row){
 
   const copyBtn = document.createElement("button");
   copyBtn.title = "Copy";
-  copyBtn.innerHTML = '<i class="ri ri-clipboard-line"></i>';
+  copyBtn.textContent = "📋";
   copyBtn.addEventListener("click", ()=>{
     navigator.clipboard.writeText(content).then(()=>{
-      copyBtn.innerHTML = '<i class="ri ri-check-line"></i>';
-      setTimeout(()=> copyBtn.innerHTML = '<i class="ri ri-clipboard-line"></i>', 1200);
+      copyBtn.textContent = "✓";
+      setTimeout(()=> copyBtn.textContent = "📋", 1200);
     });
   });
   actions.appendChild(copyBtn);
 
   const linkBtn = document.createElement("button");
   linkBtn.title = "Copy link";
-  linkBtn.innerHTML = '<i class="ri ri-link-m"></i>';
+  linkBtn.textContent = "🔗";
   linkBtn.addEventListener("click", ()=>{
     navigator.clipboard.writeText(location.href);
-    linkBtn.innerHTML = '<i class="ri ri-check-line"></i>';
-    setTimeout(()=> linkBtn.innerHTML = '<i class="ri ri-link-m"></i>', 1200);
+    linkBtn.textContent = "✓";
+    setTimeout(()=> linkBtn.textContent = "🔗", 1200);
   });
   actions.appendChild(linkBtn);
 
   if(role === "assistant"){
     const upBtn = document.createElement("button");
     upBtn.title = "Good response";
-    upBtn.innerHTML = '<i class="ri ri-thumb-up-line"></i>';
+    upBtn.textContent = "👍";
     upBtn.addEventListener("click", ()=>{
       upBtn.classList.toggle("active-up");
       downBtn.classList.remove("active-down");
     });
     const downBtn = document.createElement("button");
     downBtn.title = "Bad response";
-    downBtn.innerHTML = '<i class="ri ri-thumb-down-line"></i>';
+    downBtn.textContent = "👎";
     downBtn.addEventListener("click", ()=>{
       downBtn.classList.toggle("active-down");
       upBtn.classList.remove("active-up");
@@ -1345,14 +1257,14 @@ function buildActionsRow(role, content, row){
 
     const regenBtn = document.createElement("button");
     regenBtn.title = "Regenerate";
-    regenBtn.innerHTML = '<i class="ri ri-refresh-line"></i>';
+    regenBtn.textContent = "🔄";
     regenBtn.addEventListener("click", ()=> regenerateFrom(row));
     actions.appendChild(regenBtn);
   }
 
   const moreBtn = document.createElement("button");
   moreBtn.title = "More";
-  moreBtn.innerHTML = '<i class="ri ri-more-2-line"></i>';
+  moreBtn.textContent = "⋯";
   actions.appendChild(moreBtn);
 
   return actions;
@@ -1368,7 +1280,7 @@ function appendMessage(role, content, scroll=true, mediaList=[]){
   if(role !== "user"){
     const avatar = document.createElement("div");
     avatar.className = `avatar ${role}`;
-    avatar.innerHTML = role === "error" ? '<i class="ri ri-alert-line"></i>' : '<i class="ri ri-flashlight-line"></i>';
+    avatar.textContent = role === "error" ? "!" : "✦";
     row.appendChild(avatar);
   }
 
@@ -1433,7 +1345,7 @@ function appendTyping(){
   row.className = "row assistant";
   row.id = "typingIndicator";
   row.innerHTML = `
-    <div class="avatar assistant"><i class="ri ri-flashlight-line"></i></div>
+    <div class="avatar assistant">✦</div>
     <div class="bubble-wrap">
       <div class="sender-label">${state.provider.charAt(0).toUpperCase() + state.provider.slice(1)}</div>
       <div class="typing-dots"><span></span><span></span><span></span></div>
