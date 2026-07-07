@@ -5,6 +5,31 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Multi-AI Console</title>
 <style>
+  .download-btn-container {
+  padding: 0 4px;
+  margin-bottom: 8px;
+}
+.download-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 14px;
+  background: linear-gradient(135deg, var(--accent), #5b4bd6);
+  color: #fff;
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: calc(var(--radius-sm) + 4px);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  box-shadow: 0 4px 12px rgba(139, 124, 246, 0.2);
+}
+.download-btn:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 16px rgba(139, 124, 246, 0.3);
+  color: #fff;
+}
   :root{
     --bg-sidebar: #0b0b10;
     --bg-main: #09090d;
@@ -581,9 +606,24 @@
 <div class="sidebar" id="sidebar">
   <div class="brand-row">
     <div class="brand"><span class="mark">✦</span> Multi-AI Console</div>
-    <a href="/multiai.apk" download class="download-btn">Download for Android (APK)</a>
     <button class="icon-toggle" id="collapseBtn" title="Collapse sidebar">«</button>
   </div>
+  <div class="sidebar-footer">
+  <div class="download-btn-container">
+    <a href="/multiai.apk" download class="download-btn">
+      <span>🤖</span> Download for Android (APK)
+    </a>
+  </div>
+
+  <div class="user-row">
+    <div class="user-avatar">A</div>
+    <div class="user-meta">
+      <div class="user-name">Admin 11</div>
+      <div class="user-email">merjohnpagente2004@gmail.com</div>
+    </div>
+  </div>
+  <div class="footer-note">Deploy Node.js Server on Render</div>
+</div>
 
   <div class="nav-group">
     <button class="nav-item"><span class="ic">🔍</span> Search</button>
