@@ -2,25 +2,30 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Multi-AI Console</title>
 <style>
   :root{
-    --bg-sidebar: #171717;
-    --bg-main: #212121;
-    --bg-input: #2f2f2f;
-    --bg-bubble-user: #2f2f2f;
-    --bg-hover: #2a2a2a;
-    --border: #3a3a3a;
+    --bg-sidebar: #0c0c0d;
+    --bg-main: #111113;
+    --bg-input: #1c1c1f;
+    --bg-bubble-user: #232326;
+    --bg-hover: #1a1a1c;
+    --bg-pill: #1a1a1d;
+    --border: #2a2a2e;
+    --border-soft: #202023;
     --text: #ececec;
-    --text-dim: #b4b4b4;
-    --text-faint: #8e8e8e;
-    --accent: #10a37f;
-    --accent-hover: #12b58e;
+    --text-dim: #a8a8ad;
+    --text-faint: #7a7a80;
+    --accent: #8b7cf6;
+    --accent-hover: #a394ff;
     --danger: #ff6b6b;
-    --radius-lg: 26px;
-    --radius-md: 14px;
-    --radius-sm: 8px;
+    --ok: #3dd68c;
+    --radius-lg: 28px;
+    --radius-md: 16px;
+    --radius-sm: 10px;
+    --sidebar-w: 264px;
+    --topbar-h: 56px;
   }
   *{box-sizing:border-box;}
   html,body{height:100%;}
@@ -31,30 +36,74 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
     display:flex;
     font-size:15px;
+    overflow:hidden;
   }
 
+  /* ============ SIDEBAR ============ */
   .sidebar{
-    width: 260px;
-    min-width: 260px;
+    width: var(--sidebar-w);
+    min-width: var(--sidebar-w);
     background: var(--bg-sidebar);
     display:flex;
     flex-direction:column;
     height:100vh;
-    padding: 12px 10px;
+    padding: 14px 10px;
+    border-right: 1px solid var(--border-soft);
+    transition: margin-left .22s ease, box-shadow .22s ease;
+    z-index: 40;
+  }
+  .sidebar.collapsed{ margin-left: calc(-1 * var(--sidebar-w)); }
+
+  .brand-row{
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 4px 6px 16px;
   }
   .brand{
     display:flex; align-items:center; gap:10px;
-    padding: 10px 8px 18px;
     font-weight:600;
-    font-size:15px;
+    font-size:14.5px;
     color: var(--text);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
   }
   .brand .mark{
-    width:26px; height:26px; border-radius:8px;
-    background: linear-gradient(135deg, #10a37f, #1a7f64);
+    width:28px; height:28px; border-radius:9px;
+    background: linear-gradient(135deg, var(--accent), #5b4bd6);
     display:flex; align-items:center; justify-content:center;
     font-size:14px;
     flex-shrink:0;
+    color:#fff;
+  }
+  .icon-toggle{
+    width:30px; height:30px; border-radius:8px;
+    border:none; background:transparent; color: var(--text-faint);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; font-size:15px; flex-shrink:0;
+  }
+  .icon-toggle:hover{ background: var(--bg-hover); color: var(--text); }
+
+  .nav-group{ display:flex; flex-direction:column; gap:1px; margin-bottom: 6px;}
+  .nav-item{
+    display:flex; align-items:center; gap:12px;
+    padding: 9px 10px;
+    border-radius: var(--radius-sm);
+    cursor:pointer;
+    color: var(--text-dim);
+    font-size:14px;
+    transition: background .12s ease, color .12s ease;
+    border: none;
+    background: none;
+    width:100%;
+    text-align:left;
+    position:relative;
+  }
+  .nav-item:hover{ background: var(--bg-hover); color: var(--text); }
+  .nav-item .ic{ width:18px; text-align:center; flex-shrink:0; font-size:15px; }
+  .nav-item .badge-dot{
+    width:6px; height:6px; border-radius:50%;
+    background: var(--accent);
+    position:absolute; left:26px; top:9px;
   }
 
   .nav-label{
@@ -62,16 +111,16 @@
     text-transform:uppercase;
     letter-spacing:.6px;
     color: var(--text-faint);
-    padding: 14px 12px 8px;
+    padding: 16px 10px 6px;
   }
 
   .provider-item{
     display:flex; align-items:center; gap:10px;
-    padding: 9px 12px;
+    padding: 9px 10px;
     border-radius: var(--radius-sm);
     cursor:pointer;
     color: var(--text-dim);
-    font-size:14px;
+    font-size:13.5px;
     transition: background .12s ease, color .12s ease;
     border: none;
     background: none;
@@ -87,43 +136,103 @@
   .provider-item .status{
     margin-left:auto;
     width:6px; height:6px; border-radius:50%;
+    flex-shrink:0;
   }
-  .status.ok{ background:#3dd68c; }
-  .status.missing{ background:#ff6b6b; }
+  .status.ok{ background:var(--ok); }
+  .status.missing{ background:var(--danger); }
   .provider-item .free-badge {
-    font-size: 9px;
-    background: #10a37f;
-    color: white;
-    padding: 1px 8px;
+    font-size: 8.5px;
+    background: rgba(139,124,246,.18);
+    color: var(--accent-hover);
+    padding: 1px 7px;
     border-radius: 10px;
-    margin-left: 6px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.3px;
   }
 
+  .new-project-btn{
+    display:flex; align-items:center; gap:8px;
+    color: var(--text-faint);
+    font-size:13px;
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    cursor:pointer;
+    border:1px dashed var(--border);
+    background:none;
+    width:100%;
+    text-align:left;
+    margin-top:2px;
+  }
+  .new-project-btn:hover{ color:var(--text); border-color: var(--text-faint); }
+
+  .history-list{ overflow-y:auto; flex:1; margin-top:2px; }
+  .history-item{
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    font-size:13px;
+    color: var(--text-dim);
+    cursor:pointer;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .history-item:hover{ background: var(--bg-hover); color:var(--text); }
+  .see-all{ font-size:12.5px; color: var(--text-faint); padding: 6px 10px; cursor:pointer; }
+  .see-all:hover{ color: var(--text); }
+
   .sidebar-footer{
     margin-top:auto;
-    padding: 10px 12px;
-    font-size:11.5px;
-    color: var(--text-faint);
-    line-height:1.5;
-    border-top: 1px solid var(--border);
+    padding-top: 10px;
+    border-top: 1px solid var(--border-soft);
   }
+  .user-row{
+    display:flex; align-items:center; gap:10px;
+    padding: 8px;
+    border-radius: var(--radius-sm);
+    cursor:pointer;
+  }
+  .user-row:hover{ background: var(--bg-hover); }
+  .user-avatar{
+    width:32px; height:32px; border-radius:50%;
+    background: linear-gradient(135deg,#4c8bf5,#2f5fc0);
+    display:flex; align-items:center; justify-content:center;
+    font-size:13px; font-weight:600; color:#fff; flex-shrink:0;
+  }
+  .user-meta{ overflow:hidden; }
+  .user-name{ font-size:13px; color:var(--text); font-weight:600; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; }
+  .user-email{ font-size:11.5px; color: var(--text-faint); white-space:nowrap; text-overflow:ellipsis; overflow:hidden; }
+  .footer-note{ font-size:10.5px; color: var(--text-faint); padding: 8px 8px 2px; line-height:1.5; }
 
+  /* ============ OVERLAY (mobile) ============ */
+  .overlay{
+    position:fixed; inset:0; background: rgba(0,0,0,.5);
+    z-index: 35; display:none;
+  }
+  .overlay.show{ display:block; }
+
+  /* ============ MAIN ============ */
   .main{
     flex:1;
     display:flex;
     flex-direction:column;
     height:100vh;
     position:relative;
+    min-width:0;
   }
   .topbar{
     display:flex;
     align-items:center;
     justify-content:center;
     gap:8px;
-    padding: 14px 20px;
+    padding: 10px 20px;
+    height: var(--topbar-h);
+    position:relative;
+    border-bottom: 1px solid transparent;
+  }
+  .topbar .hamburger{
+    position:absolute; left:16px; top:50%; transform:translateY(-50%);
+    display:none;
   }
   .model-picker{ position:relative; }
   .model-picker select{
@@ -131,7 +240,7 @@
     background: transparent;
     border:none;
     color: var(--text);
-    font-size:16px;
+    font-size:15.5px;
     font-weight:600;
     padding: 6px 28px 6px 10px;
     border-radius: var(--radius-sm);
@@ -150,14 +259,16 @@
   }
   .clear-btn{
     position:absolute;
-    right:20px; top:14px;
+    right:16px; top:50%;
+    transform:translateY(-50%);
     background:none;
     border:1px solid var(--border);
     color: var(--text-faint);
-    padding:7px 14px;
+    padding:6px 14px;
     border-radius: 20px;
     cursor:pointer;
-    font-size:12.5px;
+    font-size:12px;
+    white-space:nowrap;
   }
   .clear-btn:hover{ color: var(--danger); border-color: var(--danger); }
 
@@ -168,69 +279,91 @@
     padding: 10px 24px 40px;
     display:flex;
     flex-direction:column;
-    gap:22px;
+    gap:26px;
   }
 
-  .empty-hero{ margin: auto; text-align:center; padding-top: 18vh; }
+  .empty-hero{ margin: auto; text-align:center; padding-top: 16vh; max-width:520px; }
   .empty-hero .mark-lg{
     width:52px; height:52px; border-radius:16px;
-    background: linear-gradient(135deg, #10a37f, #1a7f64);
+    background: linear-gradient(135deg, var(--accent), #5b4bd6);
     margin: 0 auto 18px;
     display:flex; align-items:center; justify-content:center;
-    font-size:26px;
+    font-size:24px; color:#fff;
   }
-  .empty-hero h1{ font-size:26px; font-weight:600; margin:0 0 8px; }
-  .empty-hero p{ color: var(--text-faint); font-size:14.5px; margin:0; }
+  .empty-hero h1{ font-size:25px; font-weight:600; margin:0 0 8px; letter-spacing:-.2px;}
+  .empty-hero p{ color: var(--text-faint); font-size:14px; margin:0 0 4px; line-height:1.6;}
 
-  .row{ display:flex; gap:14px; }
+  .row{ display:flex; gap:12px; }
   .row.user{ justify-content:flex-end; }
   .avatar{
-    width:28px; height:28px; border-radius:7px;
+    width:26px; height:26px; border-radius:8px;
     flex-shrink:0;
     display:flex; align-items:center; justify-content:center;
-    font-size:14px;
+    font-size:13px;
     font-weight:600;
     margin-top:2px;
+    color:#fff;
   }
-  .avatar.assistant{ background: linear-gradient(135deg, #10a37f, #1a7f64); color:white; }
+  .avatar.assistant{ background: linear-gradient(135deg, var(--accent), #5b4bd6); }
   .avatar.error{ background: rgba(255,107,107,.15); color: var(--danger); }
 
-  .bubble-wrap{ max-width: 100%; }
+  .bubble-wrap{ max-width: 100%; min-width:0; }
   .row.user .bubble-wrap{
     background: var(--bg-bubble-user);
     padding: 10px 16px;
     border-radius: var(--radius-md);
-    max-width: 75%;
+    max-width: 78%;
   }
-  .row.assistant .bubble-wrap, .row.error .bubble-wrap{ padding-top:3px; flex:1; }
-  .sender-label{ font-size:12px; color: var(--text-faint); margin-bottom:4px; font-weight:600; }
-  .row.error .bubble-wrap{ color: var(--danger); }
+  .row.assistant .bubble-wrap, .row.error .bubble-wrap{ padding-top:2px; flex:1; min-width:0; }
+  .sender-label{ font-size:12px; color: var(--text-faint); margin-bottom:5px; font-weight:600; }
+  .row.error .bubble-wrap .msg-text{ color: var(--danger); }
 
-  .msg-text{ white-space:pre-wrap; line-height:1.6; }
+  .msg-text{ white-space:pre-wrap; line-height:1.65; word-wrap:break-word; }
   .msg-media{ display:flex; gap:8px; margin-top:8px; flex-wrap:wrap; }
-  .msg-media .media-item{ 
-    border-radius:10px; 
-    overflow:hidden; 
+  .msg-media .media-item{
+    border-radius:10px;
+    overflow:hidden;
     max-width:200px;
     max-height:200px;
     border:1px solid var(--border);
   }
-  .msg-media .media-item img, 
-  .msg-media .media-item video{ 
-    width:100%; 
-    height:100%; 
-    object-fit:cover; 
+  .msg-media .media-item img,
+  .msg-media .media-item video{
+    width:100%;
+    height:100%;
+    object-fit:cover;
     display:block;
     max-height:200px;
   }
-  .msg-media .media-item video{ 
+  .msg-media .media-item video{
     background:#000;
-    min-width:200px;
-    min-height:150px;
+    min-width:180px;
+    min-height:130px;
   }
 
-  .code-block{ margin: 12px 0; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); background: #0e0e0e; }
-  .code-block .code-header{ display:flex; align-items:center; justify-content:space-between; padding: 8px 14px; background: #1a1a1a; border-bottom: 1px solid var(--border); font-size: 11.5px; color: var(--text-faint); }
+  /* ============ MESSAGE ACTIONS (Grok-style icon row) ============ */
+  .msg-actions{
+    display:flex; align-items:center; gap:4px;
+    margin-top: 10px;
+    color: var(--text-faint);
+  }
+  .msg-actions button{
+    width:28px; height:28px;
+    border:none; background:transparent;
+    color: var(--text-faint);
+    border-radius:7px;
+    cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    font-size:14px;
+    transition: background .12s ease, color .12s ease;
+  }
+  .msg-actions button:hover{ background: var(--bg-hover); color: var(--text); }
+  .msg-actions button.active-up{ color: var(--ok); }
+  .msg-actions button.active-down{ color: var(--danger); }
+  .msg-actions .sep{ width:1px; height:14px; background:var(--border); margin:0 4px; }
+
+  .code-block{ margin: 12px 0; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); background: #0a0a0b; }
+  .code-block .code-header{ display:flex; align-items:center; justify-content:space-between; padding: 8px 14px; background: #161618; border-bottom: 1px solid var(--border); font-size: 11.5px; color: var(--text-faint); }
   .code-block .code-actions{ display:flex; gap:8px; }
   .code-block button{ background: transparent; border: 1px solid var(--border); color: var(--text-dim); font-size: 11.5px; padding: 4px 10px; border-radius: 6px; cursor: pointer; }
   .code-block button:hover{ border-color: var(--accent); color: var(--text); }
@@ -242,37 +375,38 @@
   .typing-dots span:nth-child(3){ animation-delay:.4s; }
   @keyframes blink{ 0%,80%,100%{opacity:.2;} 40%{opacity:1;} }
 
-  .composer-wrap{ display:flex; justify-content:center; padding: 8px 24px 22px; }
+  /* ============ COMPOSER ============ */
+  .composer-wrap{ display:flex; justify-content:center; padding: 8px 24px 20px; }
   .composer{ width:100%; max-width: 720px; }
   .attachments{ display:flex; gap:8px; margin-bottom:8px; flex-wrap:wrap; }
-  .thumb{ 
-    position:relative; 
-    width:80px; 
-    height:80px; 
-    border-radius:10px; 
-    overflow:hidden; 
+  .thumb{
+    position:relative;
+    width:76px;
+    height:76px;
+    border-radius:10px;
+    overflow:hidden;
     border:1px solid var(--border);
     background:#0a0a0a;
   }
-  .thumb img, .thumb video{ 
-    width:100%; 
-    height:100%; 
-    object-fit:cover; 
+  .thumb img, .thumb video{
+    width:100%;
+    height:100%;
+    object-fit:cover;
     display:block;
   }
-  .thumb .remove{ 
-    position:absolute; 
-    top:2px; 
-    right:2px; 
-    width:20px; 
-    height:20px; 
-    background:rgba(0,0,0,.8); 
-    color:white; 
+  .thumb .remove{
+    position:absolute;
+    top:2px;
+    right:2px;
+    width:20px;
+    height:20px;
+    background:rgba(0,0,0,.8);
+    color:white;
     border:1px solid var(--border);
-    border-radius:50%; 
-    font-size:11px; 
-    line-height:18px; 
-    cursor:pointer; 
+    border-radius:50%;
+    font-size:11px;
+    line-height:18px;
+    cursor:pointer;
     padding:0;
     text-align:center;
     z-index:2;
@@ -301,15 +435,47 @@
     border-radius:4px;
   }
 
-  .input-shell{ display:flex; align-items:flex-end; gap:8px; background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 8px 8px 8px 16px; }
-  .input-shell textarea{ flex:1; background:none; border:none; outline:none; color: var(--text); font-family:inherit; font-size:15px; resize:none; min-height:24px; max-height:200px; padding: 8px 0; line-height:1.5; }
+  .input-shell{
+    display:flex; flex-direction:column;
+    background: var(--bg-pill);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 10px 10px 8px 16px;
+  }
+  .input-shell textarea{
+    background:none; border:none; outline:none; color: var(--text);
+    font-family:inherit; font-size:15.5px; resize:none;
+    min-height:24px; max-height:200px; padding: 4px 0 8px; line-height:1.5;
+    width:100%;
+  }
   .input-shell textarea::placeholder{ color: var(--text-faint); }
+
+  .composer-bottom-row{
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+  }
+  .composer-left, .composer-right{ display:flex; align-items:center; gap:6px; }
+
+  .fast-pill{
+    display:flex; align-items:center; gap:6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    border:1px solid var(--border);
+    color: var(--text-dim);
+    font-size:13px;
+    cursor:pointer;
+    background:transparent;
+  }
+  .fast-pill:hover{ background: var(--bg-hover); color: var(--text); }
+  .fast-pill::after{ content:"⌄"; font-size:11px; color: var(--text-faint); }
+
   .icon-btn{ width:34px; height:34px; border-radius:50%; border:1px solid var(--border); background: transparent; color: var(--text-dim); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
   .icon-btn:hover{ border-color: var(--accent); color: var(--text); }
   .icon-btn.disabled{ opacity:.3; cursor:not-allowed; }
-  .send-btn{ width:34px; height:34px; border-radius:50%; border:none; background: var(--text); color: var(--bg-main); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; }
-  .send-btn:disabled{ opacity:.3; cursor:not-allowed; }
+  .send-btn{ width:34px; height:34px; border-radius:50%; border:none; background: var(--text); color: var(--bg-main); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; transition: background .15s ease, color .15s ease; }
+  .send-btn:disabled{ opacity:.35; cursor:not-allowed; }
   .send-btn:not(:disabled):hover{ background: var(--accent-hover); color:white; }
+  .send-btn.mic-mode{ background: transparent; border:1px solid var(--border); color: var(--text-dim); }
+  .send-btn.mic-mode:hover{ border-color: var(--accent); color: var(--text); background:transparent; }
 
   .footnote{ text-align:center; font-size:11.5px; color: var(--text-faint); margin-top:10px; }
   .paste-hint {
@@ -319,7 +485,7 @@
     text-align:center;
     margin-top:4px;
   }
-  .paste-hint kbd {
+  .paste-hint kbd, .footnote kbd, .empty-hero kbd {
     background: var(--bg-input);
     padding: 1px 8px;
     border-radius: 4px;
@@ -329,59 +495,115 @@
   }
 
   ::-webkit-scrollbar{ width:8px; }
-  ::-webkit-scrollbar-thumb{ background:#3a3a3a; border-radius:4px; }
+  ::-webkit-scrollbar-thumb{ background:#2e2e32; border-radius:4px; }
   ::-webkit-scrollbar-track{ background:transparent; }
 
-  /* Video player controls */
-  .msg-media .media-item video::-webkit-media-controls {
-    background: rgba(0,0,0,0.5);
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 900px){
+    .sidebar{
+      position:fixed; left:0; top:0;
+      box-shadow: 0 0 40px rgba(0,0,0,.5);
+    }
+    .sidebar.collapsed{ margin-left: calc(-1 * var(--sidebar-w)); box-shadow:none; }
+    .topbar .hamburger{ display:flex; }
+    .topbar{ padding-left: 56px; }
+    .clear-btn{ padding:6px 10px; font-size:11px; }
+  }
+
+  @media (max-width: 600px){
+    .chat-col{ padding: 8px 14px 28px; gap:20px; }
+    .composer-wrap{ padding: 6px 12px 14px; }
+    .empty-hero{ padding-top: 10vh; }
+    .empty-hero h1{ font-size:21px; }
+    .empty-hero p{ font-size:13px; }
+    .row.user .bubble-wrap{ max-width: 88%; }
+    .avatar{ width:22px; height:22px; font-size:11px; border-radius:7px; }
+    .input-shell{ padding: 8px 8px 6px 12px; }
+    .input-shell textarea{ font-size:15px; }
+    .fast-pill{ padding:5px 9px; font-size:12px; }
+    .fast-pill span.fast-label{ display:none; }
+    .msg-media .media-item{ max-width:150px; max-height:150px; }
+    .thumb{ width:64px; height:64px; }
+    .footnote{ display:none; }
+    .paste-hint{ display:none; }
+  }
+
+  @media (max-width: 380px){
+    .composer-right .icon-btn:not(.send-btn){ display:none; }
   }
 </style>
 </head>
 <body>
 
-<div class="sidebar">
-  <div class="brand"><span class="mark">✦</span> Multi-AI Console ni Merjohn Gwapo</div>
+<div class="overlay" id="overlay"></div>
+
+<div class="sidebar" id="sidebar">
+  <div class="brand-row">
+    <div class="brand"><span class="mark">✦</span> Multi-AI Console</div>
+    <button class="icon-toggle" id="collapseBtn" title="Collapse sidebar">«</button>
+  </div>
+
+  <div class="nav-group">
+    <button class="nav-item"><span class="ic">🔍</span> Search</button>
+    <button class="nav-item" id="newChatBtn"><span class="ic">✎</span> New Chat</button>
+    <button class="nav-item"><span class="ic">🖼️</span> Imagine <span class="badge-dot"></span></button>
+    <button class="nav-item"><span class="ic">🧩</span> Skills and Connectors</button>
+  </div>
+
+  <div class="nav-label">Projects</div>
+  <button class="new-project-btn">+ New Project</button>
 
   <div class="nav-label">Provider</div>
-  
-  <!-- Gemini -->
+
   <button class="provider-item active" data-provider="gemini">
     <span class="dot" style="background:#4c8bf5"></span> Gemini
     <span class="free-badge">FREE</span>
     <span class="status" id="dot-gemini"></span>
   </button>
 
-  <!-- Groq -->
   <button class="provider-item" data-provider="groq">
     <span class="dot" style="background:#ff6b4a"></span> Groq
     <span class="free-badge">FREE</span>
     <span class="status" id="dot-groq"></span>
   </button>
 
-  <!-- OpenRouter -->
   <button class="provider-item" data-provider="openrouter">
     <span class="dot" style="background:#7c5cff"></span> OpenRouter
     <span class="free-badge">FREE</span>
     <span class="status" id="dot-openrouter"></span>
   </button>
 
-  <!-- Grok -->
   <button class="provider-item" data-provider="grok">
     <span class="dot" style="background:#ffffff"></span> Grok
     <span class="status" id="dot-grok"></span>
   </button>
 
+  <div class="nav-label" style="display:flex; align-items:center; justify-content:space-between; padding-right:6px;">
+    History
+  </div>
+  <div class="history-list" id="historyList">
+    <div class="history-item">Deploy Node.js Server on Render</div>
+  </div>
+  <div class="see-all">See all</div>
+
   <div class="sidebar-footer">
-    <b>API keys</b> from .env<br>
-    <span style="color:#3dd68c;">●</span> Key found &nbsp; <span style="color:#ff6b6b;">●</span> Missing<br><br>
-    <b>📸 Supports:</b> Images & Videos<br>
-    <span style="font-size:10px;color:var(--text-faint);">Paste or upload any media file</span>
+    <div class="footer-note">
+      <b>API keys</b> from .env<br>
+      <span style="color:var(--ok);">●</span> Key found &nbsp; <span style="color:var(--danger);">●</span> Missing
+    </div>
+    <div class="user-row">
+      <div class="user-avatar">A</div>
+      <div class="user-meta">
+        <div class="user-name">Admin 11</div>
+        <div class="user-email">merjohnpagente2004@gmail.com</div>
+      </div>
+    </div>
   </div>
 </div>
 
 <div class="main">
   <div class="topbar">
+    <button class="icon-toggle hamburger" id="hamburgerBtn" title="Menu">☰</button>
     <div class="model-picker">
       <select id="modelSelect"></select>
     </div>
@@ -394,7 +616,7 @@
         <div class="mark-lg">✦</div>
         <h1>Unsa may itabang nako karon?</h1>
         <p>Pili ug provider sa wala, then type your message sa ubos.</p>
-        <p style="font-size:12px;color:var(--text-faint);margin-top:12px;">
+        <p style="font-size:12px;">
           📸 Pwede ra mag <kbd>Ctrl+V</kbd> para mag-paste og image/video<br>
           🎥 Supports: PNG, JPG, GIF, MP4, WebM, MOV
         </p>
@@ -407,9 +629,16 @@
       <div class="attachments" id="attachmentsBar"></div>
       <div class="input-shell">
         <input type="file" id="fileInput" accept="image/*,video/*" multiple style="display:none;">
-        <button class="icon-btn" id="attachBtn" title="Attach image or video">📎</button>
-        <textarea id="userInput" placeholder="Message the console... (Ctrl+V to paste media)" rows="1"></textarea>
-        <button class="send-btn" id="sendBtn">↑</button>
+        <textarea id="userInput" placeholder="Ask anything..." rows="1"></textarea>
+        <div class="composer-bottom-row">
+          <div class="composer-left">
+            <button class="icon-btn" id="attachBtn" title="Attach image or video">📎</button>
+            <button class="fast-pill" id="fastPill"><span class="fast-label">Fast</span></button>
+          </div>
+          <div class="composer-right">
+            <button class="send-btn mic-mode" id="sendBtn" title="Voice">🎙️</button>
+          </div>
+        </div>
       </div>
       <div class="footnote">Enter to send · Shift+Enter for new line</div>
       <div class="paste-hint">💡 <kbd>Ctrl+V</kbd> to paste image/video · Supports: PNG, JPG, GIF, MP4, WebM</div>
@@ -451,9 +680,6 @@ const VISION_MODELS = new Set([
   "grok-4.3"
 ]);
 
-const SUPPORTED_VIDEO_TYPES = ["video/mp4", "video/webm", "video/quicktime", "video/x-msvideo", "video/mpeg"];
-const SUPPORTED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/gif", "image/webp", "image/svg+xml", "image/bmp"];
-
 const state = {
   provider: "gemini",
   histories: { gemini: [], groq: [], openrouter: [], grok: [] },
@@ -470,72 +696,104 @@ const els = {
   fileInput: document.getElementById("fileInput"),
   attachBtn: document.getElementById("attachBtn"),
   attachmentsBar: document.getElementById("attachmentsBar"),
+  sidebar: document.getElementById("sidebar"),
+  overlay: document.getElementById("overlay"),
+  collapseBtn: document.getElementById("collapseBtn"),
+  hamburgerBtn: document.getElementById("hamburgerBtn"),
+  newChatBtn: document.getElementById("newChatBtn"),
+  fastPill: document.getElementById("fastPill"),
 };
 
 let pendingMedia = [];
 
+/* ==================== SIDEBAR RESPONSIVE BEHAVIOR ==================== */
+function isMobile(){ return window.innerWidth <= 900; }
+
+function openSidebar(){
+  els.sidebar.classList.remove("collapsed");
+  if(isMobile()) els.overlay.classList.add("show");
+}
+function closeSidebar(){
+  els.sidebar.classList.add("collapsed");
+  els.overlay.classList.remove("show");
+}
+function toggleSidebar(){
+  if(els.sidebar.classList.contains("collapsed")) openSidebar(); else closeSidebar();
+}
+els.collapseBtn.addEventListener("click", toggleSidebar);
+els.hamburgerBtn.addEventListener("click", toggleSidebar);
+els.overlay.addEventListener("click", closeSidebar);
+
+function applyResponsiveDefault(){
+  if(isMobile()) closeSidebar(); else openSidebar();
+}
+window.addEventListener("resize", applyResponsiveDefault);
+applyResponsiveDefault();
+
+els.newChatBtn.addEventListener("click", ()=>{
+  state.histories[state.provider] = [];
+  renderHistory();
+  if(isMobile()) closeSidebar();
+});
+
+/* ==================== HELPERS ==================== */
 function getFileType(mimeType) {
   if (mimeType.startsWith("image/")) return "image";
   if (mimeType.startsWith("video/")) return "video";
   return "unknown";
 }
-
 function formatFileSize(bytes) {
   if (bytes < 1024) return bytes + ' B';
   if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
   return (bytes / 1048576).toFixed(1) + ' MB';
 }
 
-// ==================== PASTE SUPPORT (Images & Videos) ====================
+/* ==================== PASTE SUPPORT (Images & Videos) ==================== */
 document.addEventListener("paste", async (e) => {
   const items = e.clipboardData?.items || [];
-  let hasMedia = false;
-  
+
   for (const item of items) {
     if (item.type.startsWith("image/") || item.type.startsWith("video/")) {
-      hasMedia = true;
       const file = item.getAsFile();
-      
-      // Check if current model supports vision
+
       const model = els.modelSelect.value;
       if (!VISION_MODELS.has(model)) {
         appendMessage("error", "❌ This model doesn't support media. Please select a vision-capable model like Gemini 2.5 Flash or Llama 4 Scout.");
         return;
       }
-      
-      // Check file size (max 20MB for videos)
+
       if (file.size > 20 * 1024 * 1024) {
         appendMessage("error", "❌ File too large! Maximum size is 20MB.");
         return;
       }
-      
+
       try {
         const base64 = await fileToBase64(file);
         const fileType = getFileType(file.type);
-        
-        pendingMedia.push({ 
-          base64, 
-          mimeType: file.type, 
+
+        pendingMedia.push({
+          base64,
+          mimeType: file.type,
           previewUrl: URL.createObjectURL(file),
           type: fileType,
           size: file.size,
           name: file.name || (fileType === "video" ? "video.mp4" : "image.png")
         });
         renderAttachmentsBar();
-        
+
         const typeLabel = fileType === "video" ? "🎥 Video" : "📸 Image";
         appendMessage("assistant", `✅ ${typeLabel} pasted successfully! (${formatFileSize(file.size)})`);
       } catch (err) {
         console.error("Failed to paste media:", err);
         appendMessage("error", "❌ Failed to paste media. Please try again.");
       }
-      
+
       break;
     }
   }
 });
 
-// ==================== FILE INPUT (Upload) ====================
+/* ==================== FILE INPUT (Upload) ==================== */
 els.attachBtn.addEventListener("click", ()=>{
   if(els.attachBtn.classList.contains("disabled")){
     appendMessage("error", "❌ Pili ug vision-capable nga model una para makapadala ug media.");
@@ -546,26 +804,25 @@ els.attachBtn.addEventListener("click", ()=>{
 
 els.fileInput.addEventListener("change", async (e)=>{
   const files = Array.from(e.target.files || []);
-  
+
   for(const file of files){
     const fileType = getFileType(file.type);
-    
+
     if (fileType === "unknown") {
       appendMessage("error", `❌ Unsupported file type: ${file.type}`);
       continue;
     }
-    
-    // Check file size
+
     if (file.size > 20 * 1024 * 1024) {
       appendMessage("error", `❌ File too large! ${file.name} (${formatFileSize(file.size)}) exceeds 20MB limit.`);
       continue;
     }
-    
+
     try {
       const base64 = await fileToBase64(file);
-      pendingMedia.push({ 
-        base64, 
-        mimeType: file.type, 
+      pendingMedia.push({
+        base64,
+        mimeType: file.type,
         previewUrl: URL.createObjectURL(file),
         type: fileType,
         size: file.size,
@@ -576,26 +833,26 @@ els.fileInput.addEventListener("change", async (e)=>{
       appendMessage("error", `❌ Failed to read ${file.name}`);
     }
   }
-  
+
   els.fileInput.value = "";
   renderAttachmentsBar();
 });
 
-// ==================== ATTACHMENTS BAR ====================
+/* ==================== ATTACHMENTS BAR ==================== */
 function renderAttachmentsBar(){
   els.attachmentsBar.innerHTML = "";
-  
+
   pendingMedia.forEach((media, idx)=>{
     const div = document.createElement("div");
     div.className = "thumb";
-    
+
     let previewHtml = '';
     if (media.type === "video") {
       previewHtml = `<video src="${media.previewUrl}" muted playsinline></video>`;
     } else {
       previewHtml = `<img src="${media.previewUrl}" alt="Media ${idx+1}">`;
     }
-    
+
     div.innerHTML = `
       ${previewHtml}
       <button class="remove" data-idx="${idx}">✕</button>
@@ -604,7 +861,7 @@ function renderAttachmentsBar(){
     `;
     els.attachmentsBar.appendChild(div);
   });
-  
+
   els.attachmentsBar.querySelectorAll(".remove").forEach(btn=>{
     btn.addEventListener("click", ()=>{
       pendingMedia.splice(parseInt(btn.dataset.idx), 1);
@@ -613,8 +870,7 @@ function renderAttachmentsBar(){
   });
 }
 
-// ==================== REST OF THE CODE ====================
-
+/* ==================== STATUS / MODELS ==================== */
 async function loadStatus(){
   try{
     const res = await fetch("/api/status");
@@ -655,6 +911,7 @@ function setProvider(p){
   els.providerBtns.forEach(b=> b.classList.toggle("active", b.dataset.provider === p));
   populateModels();
   renderHistory();
+  if(isMobile()) closeSidebar();
 }
 els.providerBtns.forEach(btn=> btn.addEventListener("click", ()=> setProvider(btn.dataset.provider)));
 
@@ -667,6 +924,7 @@ function fileToBase64(file){
   });
 }
 
+/* ==================== CODE BLOCK PARSING ==================== */
 function parseCodeBlocks(text){
   const segments = [];
   const fenceRegex = /```([a-zA-Z0-9+#.\-]*)\n([\s\S]*?)```/g;
@@ -725,6 +983,7 @@ function renderMessageBody(container, content){
       fixBtn.addEventListener("click", ()=>{
         els.userInput.value = `Fix the error in this ${seg.lang} code:\n\n\`\`\`${seg.lang}\n${seg.value}\n\`\`\``;
         els.userInput.focus();
+        refreshSendBtn();
       });
       actions.appendChild(copyBtn);
       actions.appendChild(fixBtn);
@@ -739,6 +998,7 @@ function renderMessageBody(container, content){
   });
 }
 
+/* ==================== HISTORY / MESSAGES ==================== */
 function renderHistory(){
   const hist = state.histories[state.provider];
   els.chatCol.innerHTML = "";
@@ -750,6 +1010,64 @@ function renderHistory(){
 function scrollToBottom(){
   const scroller = document.querySelector(".chat-scroll");
   scroller.scrollTop = scroller.scrollHeight;
+}
+
+function buildActionsRow(role, content, row){
+  const actions = document.createElement("div");
+  actions.className = "msg-actions";
+
+  const copyBtn = document.createElement("button");
+  copyBtn.title = "Copy";
+  copyBtn.textContent = "📋";
+  copyBtn.addEventListener("click", ()=>{
+    navigator.clipboard.writeText(content).then(()=>{
+      copyBtn.textContent = "✓";
+      setTimeout(()=> copyBtn.textContent = "📋", 1200);
+    });
+  });
+  actions.appendChild(copyBtn);
+
+  const linkBtn = document.createElement("button");
+  linkBtn.title = "Copy link";
+  linkBtn.textContent = "🔗";
+  linkBtn.addEventListener("click", ()=>{
+    navigator.clipboard.writeText(location.href);
+    linkBtn.textContent = "✓";
+    setTimeout(()=> linkBtn.textContent = "🔗", 1200);
+  });
+  actions.appendChild(linkBtn);
+
+  if(role === "assistant"){
+    const upBtn = document.createElement("button");
+    upBtn.title = "Good response";
+    upBtn.textContent = "👍";
+    upBtn.addEventListener("click", ()=>{
+      upBtn.classList.toggle("active-up");
+      downBtn.classList.remove("active-down");
+    });
+    const downBtn = document.createElement("button");
+    downBtn.title = "Bad response";
+    downBtn.textContent = "👎";
+    downBtn.addEventListener("click", ()=>{
+      downBtn.classList.toggle("active-down");
+      upBtn.classList.remove("active-up");
+    });
+    actions.appendChild(upBtn);
+    actions.appendChild(downBtn);
+
+    const regenBtn = document.createElement("button");
+    regenBtn.title = "Regenerate";
+    regenBtn.textContent = "🔄";
+    regenBtn.addEventListener("click", ()=> regenerateFrom(row));
+    actions.appendChild(regenBtn);
+  }
+
+  const moreBtn = document.createElement("button");
+  moreBtn.title = "More";
+  moreBtn.textContent = "⋯";
+  actions.appendChild(moreBtn);
+
+  return actions;
 }
 
 function appendMessage(role, content, scroll=true, mediaList=[]){
@@ -784,14 +1102,13 @@ function appendMessage(role, content, scroll=true, mediaList=[]){
 
   renderMessageBody(wrap, content);
 
-  // Display media (images & videos)
   if(mediaList.length){
     const mediaWrap = document.createElement("div");
     mediaWrap.className = "msg-media";
     mediaList.forEach(media => {
       const item = document.createElement("div");
       item.className = "media-item";
-      
+
       if (media.type === "video") {
         const video = document.createElement("video");
         video.src = media.previewUrl;
@@ -806,10 +1123,14 @@ function appendMessage(role, content, scroll=true, mediaList=[]){
         img.loading = "lazy";
         item.appendChild(img);
       }
-      
+
       mediaWrap.appendChild(item);
     });
     wrap.appendChild(mediaWrap);
+  }
+
+  if(role === "assistant" || role === "error"){
+    wrap.appendChild(buildActionsRow(role, content, row));
   }
 
   row.appendChild(wrap);
@@ -838,14 +1159,63 @@ els.clearBtn.addEventListener("click", ()=>{
   renderHistory();
 });
 
+/* ==================== INPUT / SEND ==================== */
+function refreshSendBtn(){
+  const hasText = els.userInput.value.trim().length > 0 || pendingMedia.length > 0;
+  els.sendBtn.classList.toggle("mic-mode", !hasText);
+  els.sendBtn.textContent = hasText ? "↑" : "🎙️";
+  els.sendBtn.title = hasText ? "Send" : "Voice";
+}
+
 els.userInput.addEventListener("keydown", (e)=>{
   if(e.key === "Enter" && !e.shiftKey){ e.preventDefault(); sendMessage(); }
 });
 els.userInput.addEventListener("input", ()=>{
   els.userInput.style.height = "auto";
   els.userInput.style.height = Math.min(els.userInput.scrollHeight, 200) + "px";
+  refreshSendBtn();
 });
-els.sendBtn.addEventListener("click", sendMessage);
+els.sendBtn.addEventListener("click", ()=>{
+  if(els.sendBtn.classList.contains("mic-mode")) return; // voice not wired up
+  sendMessage();
+});
+
+async function callBackend(provider, model, messages){
+  const res = await fetch("/api/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ provider, model, messages })
+  });
+  const data = await res.json();
+  if(!res.ok) throw new Error(data.error || `Server error (${res.status})`);
+  return data;
+}
+
+async function regenerateFrom(row){
+  const provider = state.provider;
+  const hist = state.histories[provider];
+  const idx = Array.from(els.chatCol.children).indexOf(row);
+  // find corresponding history index (assumes 1:1 order with rendered rows)
+  if(idx < 0 || idx >= hist.length) return;
+
+  const upTo = hist.slice(0, idx); // everything before this assistant message
+  appendTyping();
+  try{
+    const model = els.modelSelect.value;
+    const messagesWithMedia = upTo.map(m => ({
+      role: m.role,
+      content: m.content,
+      media: m.media ? m.media.map(mm => ({ base64: mm.base64, mimeType: mm.mimeType, type: mm.type })) : undefined
+    }));
+    const data = await callBackend(provider, model, messagesWithMedia);
+    removeTyping();
+    hist[idx] = { role: "assistant", content: data.reply };
+    renderHistory();
+  } catch(err){
+    removeTyping();
+    appendMessage("error", err.message || String(err));
+  }
+}
 
 async function sendMessage(){
   const text = els.userInput.value.trim();
@@ -854,16 +1224,15 @@ async function sendMessage(){
   const provider = state.provider;
   const model = els.modelSelect.value;
   const mediaForThisMsg = pendingMedia.slice();
-  const previewUrls = mediaForThisMsg.map(m => m.previewUrl);
 
-  state.histories[provider].push({ 
-    role:"user", 
-    content:text, 
-    media: mediaForThisMsg.map(m => ({ 
-      type: m.type, 
+  state.histories[provider].push({
+    role:"user",
+    content:text,
+    media: mediaForThisMsg.map(m => ({
+      type: m.type,
       previewUrl: m.previewUrl,
       base64: m.base64,
-      mimeType: m.mimeType 
+      mimeType: m.mimeType
     }))
   });
   appendMessage("user", text, true, mediaForThisMsg);
@@ -871,11 +1240,11 @@ async function sendMessage(){
   els.userInput.style.height = "auto";
   pendingMedia = [];
   renderAttachmentsBar();
+  refreshSendBtn();
   els.sendBtn.disabled = true;
   appendTyping();
 
   try{
-    // Send base64 data to backend
     const messagesWithMedia = state.histories[provider].map(m => ({
       role: m.role,
       content: m.content,
@@ -886,17 +1255,8 @@ async function sendMessage(){
       })) : undefined
     }));
 
-    const res = await fetch("/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        provider, model,
-        messages: messagesWithMedia
-      })
-    });
-    const data = await res.json();
+    const data = await callBackend(provider, model, messagesWithMedia);
     removeTyping();
-    if(!res.ok) throw new Error(data.error || `Server error (${res.status})`);
 
     state.histories[provider].push({ role:"assistant", content:data.reply });
     appendMessage("assistant", data.reply);
@@ -910,6 +1270,7 @@ async function sendMessage(){
 
 populateModels();
 loadStatus();
+refreshSendBtn();
 </script>
 
 </body>
