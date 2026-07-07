@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Multi-AI Console</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css">
 <style>
   :root{
     --bg-sidebar: #0b0b10;
@@ -76,10 +77,13 @@
     width:30px; height:30px; border-radius:12px;
     background: linear-gradient(135deg, var(--accent), #5b4bd6);
     display:flex; align-items:center; justify-content:center;
-    font-size:15px;
+    font-size:16px;
     flex-shrink:0;
     color:#fff;
   }
+  .ri{ font-size: 18px; line-height: 1; }
+  .icon-btn i, .nav-item i, .brand .ri{ display:inline-flex; align-items:center; justify-content:center; }
+
   .icon-toggle{
     width:34px; height:34px; border-radius:12px;
     border:none; background:transparent; color: var(--text-faint);
@@ -644,14 +648,14 @@
 <div class="sidebar" id="sidebar">
   <div class="brand-row">
     <div class="brand"><span class="mark">✦</span> MERJ Multi-AI Console</div>
-    <button class="icon-toggle" id="collapseBtn" title="Collapse sidebar">«</button>
+    <button class="icon-toggle" id="collapseBtn" title="Collapse sidebar"><i class="ri ri-arrow-left-s-line"></i></button>
   </div>
 
   <div class="nav-group">
-    <button class="nav-item"><span class="ic">🔍</span> Search</button>
-    <button class="nav-item" id="newChatBtn"><span class="ic">✎</span> New Chat</button>
-    <button class="nav-item"><span class="ic">🖼️</span> Imagine <span class="badge-dot"></span></button>
-    <button class="nav-item"><span class="ic">🧩</span> Skills and Connectors</button>
+    <button class="nav-item" id="searchBtn"><i class="ri ri-search-line"></i> Search</button>
+    <button class="nav-item" id="newChatBtn"><i class="ri ri-pencil-line"></i> New Chat</button>
+    <button class="nav-item"><i class="ri ri-image-2-line"></i> Imagine <span class="badge-dot"></span></button>
+    <button class="nav-item"><i class="ri ri-puzzle-line"></i> Skills and Connectors</button>
   </div>
 
   <div class="nav-label">Projects</div>
@@ -693,7 +697,7 @@
   <div class="sidebar-footer">
     <div class="download-btn-container">
       <a href="/multiai.apk" download class="download-btn">
-        <span>🤖</span> Download for Android (APK)
+        <span></span> Download for Android (APK)
       </a>
     </div>
     <div class="footer-note">
@@ -712,22 +716,33 @@
 
 <div class="main">
   <div class="topbar">
-    <button class="icon-toggle hamburger" id="hamburgerBtn" title="Menu">☰</button>
+    <button class="icon-toggle hamburger" id="hamburgerBtn" title="Menu"><i class="ri ri-menu-line"></i></button>
     <div class="model-picker">
       <select id="modelSelect"></select>
     </div>
-    <button class="clear-btn" id="clearBtn">Clear chat</button>
+    <button class="clear-btn" id="clearBtn"><i class="ri ri-refresh-line"></i> Clear chat</button>
+  </div>
+
+  <div class="search-panel" id="searchPanel">
+    <div class="search-header">
+      <div class="search-info">Search current history</div>
+      <button class="icon-btn" id="closeSearchBtn" title="Close search"><i class="ri ri-close-line"></i></button>
+    </div>
+    <input id="searchInput" type="search" placeholder="Type to search chat history..." autocomplete="off">
+    <div class="search-results" id="searchResults">
+      <div class="no-results">Click Search and enter a query to find messages.</div>
+    </div>
   </div>
 
   <div class="chat-scroll">
     <div class="chat-col" id="chatCol">
       <div class="empty-hero" id="emptyState">
-        <div class="mark-lg">✦</div>
+        <div class="mark-lg"><i class="ri ri-flashlight-line"></i></div>
         <h1>Unsa may itabang nako karon?</h1>
         <p>Pili ug provider sa wala, then type your message sa ubos.</p>
         <p style="font-size:12px;">
-          📸 Pwede ra mag <kbd>Ctrl+V</kbd> para mag-paste og image/video<br>
-          🎥 Supports: PNG, JPG, GIF, MP4, WebM, MOV
+          <i class="ri ri-image-2-line"></i> Pwede ra mag <kbd>Ctrl+V</kbd> para mag-paste og image/video<br>
+          <i class="ri ri-camera-line"></i> Supports: PNG, JPG, GIF, MP4, WebM, MOV
         </p>
       </div>
     </div>
@@ -741,22 +756,19 @@
         <textarea id="userInput" placeholder="Ask anything..." rows="1"></textarea>
         <div class="composer-bottom-row">
           <div class="composer-left">
-            <button class="icon-btn" id="attachBtn" title="Attach image or video">📎</button>
+            <button class="icon-btn" id="attachBtn" title="Attach image or video"><i class="ri ri-attachment-2"></i></button>
             <button class="fast-pill" id="fastPill"><span class="fast-label">Fast</span></button>
           </div>
           <div class="composer-right">
-            <button class="send-btn mic-mode" id="sendBtn" title="Voice">🎙️</button>
+            <button class="send-btn mic-mode" id="sendBtn" title="Voice"><i class="ri ri-mic-line"></i></button>
           </div>
         </div>
       </div>
       <div class="footnote">Enter to send · Shift+Enter for new line</div>
-      <div class="paste-hint">💡 <kbd>Ctrl+V</kbd> to paste image/video · Supports: PNG, JPG, GIF, MP4, WebM</div>
+      <div class="paste-hint"><i class="ri ri-lightbulb-line"></i> <kbd>Ctrl+V</kbd> to paste image/video · Supports: PNG, JPG, GIF, MP4, WebM</div>
     </div>
   </div>
 </div>
-
-</body>
-</html>
 
 <script>
 const MODELS = {
@@ -813,6 +825,11 @@ const els = {
   collapseBtn: document.getElementById("collapseBtn"),
   hamburgerBtn: document.getElementById("hamburgerBtn"),
   newChatBtn: document.getElementById("newChatBtn"),
+  searchBtn: document.getElementById("searchBtn"),
+  searchPanel: document.getElementById("searchPanel"),
+  closeSearchBtn: document.getElementById("closeSearchBtn"),
+  searchInput: document.getElementById("searchInput"),
+  searchResults: document.getElementById("searchResults"),
   fastPill: document.getElementById("fastPill"),
 };
 
@@ -842,9 +859,22 @@ function applyResponsiveDefault(){
 window.addEventListener("resize", applyResponsiveDefault);
 applyResponsiveDefault();
 
+els.searchBtn.addEventListener("click", ()=>{
+  openSearchPanel();
+});
+
+els.closeSearchBtn.addEventListener("click", ()=>{
+  closeSearchPanel();
+});
+
+els.searchInput.addEventListener("input", ()=>{
+  performSearch(els.searchInput.value);
+});
+
 els.newChatBtn.addEventListener("click", ()=>{
   state.histories[state.provider] = [];
   renderHistory();
+  closeSearchPanel();
   if(isMobile()) closeSidebar();
 });
 
@@ -967,8 +997,8 @@ function renderAttachmentsBar(){
 
     div.innerHTML = `
       ${previewHtml}
-      <button class="remove" data-idx="${idx}">✕</button>
-      <span class="file-type-badge">${media.type === "video" ? "🎥" : "📸"}</span>
+      <button class="remove" data-idx="${idx}"><i class="ri ri-close-line"></i></button>
+      <span class="file-type-badge">${media.type === "video" ? '<i class="ri ri-video-line"></i>' : '<i class="ri ri-image-2-line"></i>'}</span>
       <span class="file-size">${formatFileSize(media.size)}</span>
     `;
     els.attachmentsBar.appendChild(div);
@@ -1023,9 +1053,67 @@ function setProvider(p){
   els.providerBtns.forEach(b=> b.classList.toggle("active", b.dataset.provider === p));
   populateModels();
   renderHistory();
+  closeSearchPanel();
   if(isMobile()) closeSidebar();
 }
 els.providerBtns.forEach(btn=> btn.addEventListener("click", ()=> setProvider(btn.dataset.provider)));
+
+function openSearchPanel(){
+  els.searchPanel.classList.add("active");
+  els.searchInput.focus();
+  if(isMobile()) closeSidebar();
+  performSearch(els.searchInput.value);
+}
+function closeSearchPanel(){
+  els.searchPanel.classList.remove("active");
+  els.searchInput.value = "";
+  renderSearchResults([]);
+}
+
+function performSearch(query){
+  const normalized = String(query).trim().toLowerCase();
+  if(!normalized){
+    renderSearchResults([]);
+    return;
+  }
+
+  const hist = state.histories[state.provider] || [];
+  const results = hist
+    .map((item, idx)=>(
+      { role: item.role, content: item.content || "", index: idx }
+    ))
+    .filter(item => item.content.toLowerCase().includes(normalized));
+
+  renderSearchResults(results, normalized);
+}
+
+function renderSearchResults(results){
+  els.searchResults.innerHTML = "";
+  if(!results || results.length === 0){
+    els.searchResults.innerHTML = `<div class="no-results">No matching messages found. Try a different keyword.</div>`;
+    return;
+  }
+
+  results.forEach(item => {
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = "search-result";
+    card.dataset.index = item.index;
+    card.innerHTML = `
+      <div class="result-role">${item.role === "user" ? "You" : "Assistant"}</div>
+      <div class="result-text">${escapeHtml(item.content).slice(0, 280)}</div>
+    `;
+    card.addEventListener("click", ()=>{
+      const target = els.chatCol.children[item.index];
+      if(target){
+        target.classList.add("highlight");
+        target.scrollIntoView({ behavior: "smooth", block: "center" });
+        setTimeout(()=> target.classList.remove("highlight"), 2200);
+      }
+    });
+    els.searchResults.appendChild(card);
+  });
+}
 
 function fileToBase64(file){
   return new Promise((resolve, reject)=>{
@@ -1130,36 +1218,36 @@ function buildActionsRow(role, content, row){
 
   const copyBtn = document.createElement("button");
   copyBtn.title = "Copy";
-  copyBtn.textContent = "📋";
+  copyBtn.innerHTML = '<i class="ri ri-clipboard-line"></i>';
   copyBtn.addEventListener("click", ()=>{
     navigator.clipboard.writeText(content).then(()=>{
-      copyBtn.textContent = "✓";
-      setTimeout(()=> copyBtn.textContent = "📋", 1200);
+      copyBtn.innerHTML = '<i class="ri ri-check-line"></i>';
+      setTimeout(()=> copyBtn.innerHTML = '<i class="ri ri-clipboard-line"></i>', 1200);
     });
   });
   actions.appendChild(copyBtn);
 
   const linkBtn = document.createElement("button");
   linkBtn.title = "Copy link";
-  linkBtn.textContent = "🔗";
+  linkBtn.innerHTML = '<i class="ri ri-link-m"></i>';
   linkBtn.addEventListener("click", ()=>{
     navigator.clipboard.writeText(location.href);
-    linkBtn.textContent = "✓";
-    setTimeout(()=> linkBtn.textContent = "🔗", 1200);
+    linkBtn.innerHTML = '<i class="ri ri-check-line"></i>';
+    setTimeout(()=> linkBtn.innerHTML = '<i class="ri ri-link-m"></i>', 1200);
   });
   actions.appendChild(linkBtn);
 
   if(role === "assistant"){
     const upBtn = document.createElement("button");
     upBtn.title = "Good response";
-    upBtn.textContent = "👍";
+    upBtn.innerHTML = '<i class="ri ri-thumb-up-line"></i>';
     upBtn.addEventListener("click", ()=>{
       upBtn.classList.toggle("active-up");
       downBtn.classList.remove("active-down");
     });
     const downBtn = document.createElement("button");
     downBtn.title = "Bad response";
-    downBtn.textContent = "👎";
+    downBtn.innerHTML = '<i class="ri ri-thumb-down-line"></i>';
     downBtn.addEventListener("click", ()=>{
       downBtn.classList.toggle("active-down");
       upBtn.classList.remove("active-up");
@@ -1169,14 +1257,14 @@ function buildActionsRow(role, content, row){
 
     const regenBtn = document.createElement("button");
     regenBtn.title = "Regenerate";
-    regenBtn.textContent = "🔄";
+    regenBtn.innerHTML = '<i class="ri ri-refresh-line"></i>';
     regenBtn.addEventListener("click", ()=> regenerateFrom(row));
     actions.appendChild(regenBtn);
   }
 
   const moreBtn = document.createElement("button");
   moreBtn.title = "More";
-  moreBtn.textContent = "⋯";
+  moreBtn.innerHTML = '<i class="ri ri-more-2-line"></i>';
   actions.appendChild(moreBtn);
 
   return actions;
@@ -1187,11 +1275,12 @@ function appendMessage(role, content, scroll=true, mediaList=[]){
 
   const row = document.createElement("div");
   row.className = `row ${role}`;
+  row.dataset.searchText = String(content || "").toLowerCase();
 
   if(role !== "user"){
     const avatar = document.createElement("div");
     avatar.className = `avatar ${role}`;
-    avatar.textContent = role === "error" ? "!" : "✦";
+    avatar.innerHTML = role === "error" ? '<i class="ri ri-alert-line"></i>' : '<i class="ri ri-flashlight-line"></i>';
     row.appendChild(avatar);
   }
 
@@ -1256,7 +1345,7 @@ function appendTyping(){
   row.className = "row assistant";
   row.id = "typingIndicator";
   row.innerHTML = `
-    <div class="avatar assistant">✦</div>
+    <div class="avatar assistant"><i class="ri ri-flashlight-line"></i></div>
     <div class="bubble-wrap">
       <div class="sender-label">${state.provider.charAt(0).toUpperCase() + state.provider.slice(1)}</div>
       <div class="typing-dots"><span></span><span></span><span></span></div>
@@ -1275,7 +1364,7 @@ els.clearBtn.addEventListener("click", ()=>{
 function refreshSendBtn(){
   const hasText = els.userInput.value.trim().length > 0 || pendingMedia.length > 0;
   els.sendBtn.classList.toggle("mic-mode", !hasText);
-  els.sendBtn.textContent = hasText ? "↑" : "🎙️";
+  els.sendBtn.innerHTML = hasText ? '<i class="ri ri-send-plane-2-line"></i>' : '<i class="ri ri-mic-line"></i>';
   els.sendBtn.title = hasText ? "Send" : "Voice";
 }
 

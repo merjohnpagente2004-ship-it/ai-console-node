@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const fetch = require("node-fetch");
 const path = require("path");
+const fs = require("fs");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -10,6 +11,55 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json({ limit: "15mb" })); // higher limit so base64 images fit
 app.use(express.static(path.join(__dirname, "public")));
+
+// ==================== APK DOWNLOAD ROUTE ====================
+app.get('/multiai.apk', (req, res) => {
+    const apkPath = path.join(__dirname, 'public', 'multiai.apk');
+    
+    // I-check kung naa ba gyud ang file
+    if (!fs.existsSync(apkPath)) {
+        return res.status(404).send(`
+            <h1>❌ APK File Not Found</h1>
+            <p>Please make sure <strong>multiai.apk</strong> is in the <strong>public</strong> folder.</p>
+            <p>Current directory: ${__dirname}</p>
+        `);
+    }
+    
+    // I-set ang saktong headers para sa Android APK
+    res.setHeader('Content-Type', 'application/vnd.android.package-archive');
+    res.setHeader('Content-Disposition', 'attachment; filename="multiai.apk"');
+    res.setHeader('Content-Length', fs.statSync(apkPath).size);
+    
+    // I-send ang file
+    res.sendFile(apkPath, (err) => {
+        if (err) {
+            console.error('❌ Error sending APK:', err);
+            res.status(500).send('Error downloading APK file.');
+        }
+    });
+});
+
+// ==================== APK INFO ENDPOINT ====================
+app.get('/api/apk-info', (req, res) => {
+    const apkPath = path.join(__dirname, 'public', 'multiai.apk');
+    
+    if (fs.existsSync(apkPath)) {
+        const stats = fs.statSync(apkPath);
+        res.json({
+            exists: true,
+            size: stats.size,
+            sizeMB: (stats.size / (1024 * 1024)).toFixed(2),
+            filename: 'multiai.apk',
+            path: apkPath
+        });
+    } else {
+        res.json({
+            exists: false,
+            error: 'APK file not found in public folder',
+            path: apkPath
+        });
+    }
+});
 
 // ==================== CONFIGURATION ====================
 const PROVIDERS = {
@@ -354,6 +404,8 @@ app.listen(PORT, () => {
   console.log(`   Gemini: ${Boolean(process.env.GEMINI_API_KEY) ? "✅" : "❌"}`);
   console.log(`   Groq: ${Boolean(process.env.GROQ_API_KEY) ? "✅" : "❌"}`);
   console.log(`   OpenRouter: ${Boolean(process.env.OPENROUTER_API_KEY) ? "✅" : "❌"}`);
+  console.log(`\n📱 APK Download available at: http://localhost:${PORT}/multiai.apk`);
+  console.log(`📱 APK Info: http://localhost:${PORT}/api/apk-info`);
   console.log(`\n🔥 OpenRouter Free Models:`);
   console.log(`   • meta-llama/llama-3-70b-instruct:free (Best)`);
   console.log(`   • deepseek/deepseek-chat:free (DeepSeek FREE!)`);
