@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Multi-AI Console</title>
 <style>
   :root{
@@ -571,16 +571,29 @@
   @media (max-width: 900px){
     .sidebar{
       position:fixed; left:0; top:0;
+      width: min(90vw, 340px);
+      max-width: 340px;
       box-shadow: 0 0 40px rgba(0,0,0,.5);
+      height: 100vh;
     }
     .sidebar.collapsed{ margin-left: calc(-1 * var(--sidebar-w)); box-shadow:none; }
     .topbar .hamburger{ display:flex; }
     .topbar{ padding-left: 56px; }
+    .model-picker select{ min-width: 180px; }
     .clear-btn{ padding:6px 10px; font-size:11px; }
   }
 
+  @media (max-width: 700px){
+    .topbar{ flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; }
+    .model-picker{ flex:1 1 100%; }
+    .model-picker select{ width: 100%; min-width: auto; }
+    .clear-btn{ position: static; transform: none; width: 100%; margin-top: 8px; }
+    .sidebar{ width: min(95vw, 340px); min-width: unset; }
+    .sidebar.collapsed{ margin-left: calc(-1 * min(95vw, 340px)); }
+  }
+
   @media (max-width: 600px){
-    .chat-col{ padding: 8px 14px 28px; gap:20px; }
+    .chat-col{ padding: 8px 14px 28px; gap:18px; }
     .composer-wrap{ padding: 8px 12px 14px; }
     .composer{ padding: 16px; }
     .empty-hero{ padding-top: 10vh; }
@@ -594,12 +607,33 @@
     .fast-pill span.fast-label{ display:none; }
     .msg-media .media-item{ max-width:150px; max-height:150px; }
     .thumb{ width:64px; height:64px; }
-    .footnote{ display:none; }
+    .footer-note{ display:none; }
     .paste-hint{ display:none; }
+    .nav-group, .history-list { margin-bottom: 8px; }
+    .provider-item, .nav-item, .new-project-btn, .download-btn { padding: 11px 12px; font-size: 13px; }
+  }
+
+  @media (max-width: 520px){
+    body{ overflow:auto; }
+    .sidebar{ width: 100vw; min-width: auto; }
+    .sidebar.collapsed{ margin-left: -100vw; }
+    .topbar{ padding: 12px 12px; }
+    .model-picker select{ padding-right: 32px; }
+    .chat-col{ padding: 8px 12px 26px; }
+    .composer{ border-radius: 22px; padding: 14px; }
+    .send-btn{ width:40px; height:40px; font-size:16px; }
+    .icon-btn{ width:34px; height:34px; }
+    .history-item{ font-size:12.5px; }
+    .download-btn{ font-size:13px; }
   }
 
   @media (max-width: 380px){
     .composer-right .icon-btn:not(.send-btn){ display:none; }
+    .topbar{ padding: 12px 10px; }
+    .model-picker select{ font-size:14px; }
+    .clear-btn{ padding:6px 12px; }
+    .nav-item, .provider-item, .new-project-btn, .download-btn { padding: 10px 12px; }
+    .brand{ font-size:14px; }
   }
 </style>
 </head>
