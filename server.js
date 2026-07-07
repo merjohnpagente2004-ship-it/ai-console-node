@@ -9,7 +9,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
-app.use(express.json({ limit: "15mb" })); // higher limit so base64 images fit
+app.use(express.json({ limit: "15mb" }));
 app.use(express.static(path.join(__dirname, "public")));
 
 // ==================== APK DOWNLOAD ROUTE ====================
@@ -25,16 +25,27 @@ app.get('/multiai.apk', (req, res) => {
         `);
     }
     
+    // Get file stats
+    const stat = fs.statSync(apkPath);
+    console.log(`📱 APK Download requested - Size: ${(stat.size / 1024 / 1024).toFixed(2)} MB`);
+    
     // I-set ang saktong headers para sa Android APK
     res.setHeader('Content-Type', 'application/vnd.android.package-archive');
     res.setHeader('Content-Disposition', 'attachment; filename="multiai.apk"');
-    res.setHeader('Content-Length', fs.statSync(apkPath).size);
+    res.setHeader('Content-Length', stat.size);
+    
+    // IMPORTANTE: Force download - para dili mag-cache ang browser
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
     
     // I-send ang file
     res.sendFile(apkPath, (err) => {
         if (err) {
             console.error('❌ Error sending APK:', err);
             res.status(500).send('Error downloading APK file.');
+        } else {
+            console.log('✅ APK sent successfully!');
         }
     });
 });
@@ -127,17 +138,14 @@ app.get("/api/models", (req, res) => {
 app.post("/api/chat", async (req, res) => {
   const { provider, model, messages } = req.body;
 
-  // Validation
   if (!provider || !model || !Array.isArray(messages)) {
     return res.status(400).json({ error: "Missing provider, model, or messages." });
   }
 
-  // Check if provider exists
   if (!PROVIDERS[provider]) {
     return res.status(400).json({ error: `Unknown provider: ${provider}` });
   }
 
-  // Check if API key is configured
   const apiKey = process.env[`${provider.toUpperCase()}_API_KEY`];
   if (!apiKey) {
     return res.status(401).json({ error: `${PROVIDERS[provider].name} API key is not configured.` });
@@ -148,7 +156,6 @@ app.post("/api/chat", async (req, res) => {
     if (provider === "gemini") {
       reply = await callGemini(model, messages, apiKey);
     } else if (provider === "groq" || provider === "openrouter" || provider === "grok") {
-      // Both use OpenAI-compatible format
       reply = await callOpenAICompatible(model, messages, PROVIDERS[provider].endpoint, apiKey, provider);
     } else {
       return res.status(400).json({ error: `Unknown provider: ${provider}` });
@@ -168,7 +175,6 @@ app.post("/api/chat", async (req, res) => {
 app.post("/api/chat/stream", async (req, res) => {
   const { provider, model, messages } = req.body;
 
-  // Validation
   if (!provider || !model || !Array.isArray(messages)) {
     return res.status(400).json({ error: "Missing provider, model, or messages." });
   }
@@ -183,21 +189,16 @@ app.post("/api/chat/stream", async (req, res) => {
   }
 
   try {
-    // Only Groq and OpenRouter support streaming via OpenAI-compatible endpoint
     if (provider === "gemini") {
-      // Gemini doesn't support streaming in this implementation
-      // Fallback to non-streaming
       const reply = await callGemini(model, messages, apiKey);
       return res.json({ reply });
     }
 
-    // Set up SSE (Server-Sent Events)
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
-    res.setHeader('X-Accel-Buffering', 'no'); // Disable nginx buffering
+    res.setHeader('X-Accel-Buffering', 'no');
 
-    // Prepare the request
     const endpoint = PROVIDERS[provider].endpoint;
     const formattedMessages = formatMessagesForOpenAI(messages);
     
@@ -222,7 +223,6 @@ app.post("/api/chat/stream", async (req, res) => {
       throw new Error(errorMsg);
     }
 
-    // Stream the response
     let buffer = '';
     let fullResponse = '';
 
@@ -272,9 +272,6 @@ app.post("/api/chat/stream", async (req, res) => {
 
 // ==================== HELPERS ====================
 
-/**
- * Call Gemini API
- */
 async function callGemini(model, messages, apiKey) {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
   
@@ -310,12 +307,8 @@ async function callGemini(model, messages, apiKey) {
   return text;
 }
 
-/**
- * Format messages for OpenAI-compatible APIs (Groq, OpenRouter)
- */
 function formatMessagesForOpenAI(messages) {
   return messages.map((m) => {
-    // Handle messages with images
     if (m.images && m.images.length) {
       const content = [];
       if (m.content) content.push({ type: "text", text: m.content });
@@ -333,7 +326,6 @@ function formatMessagesForOpenAI(messages) {
       };
     }
     
-    // Handle text-only messages
     return { 
       role: m.role === "user" ? "user" : "assistant", 
       content: m.content || "" 
@@ -341,9 +333,6 @@ function formatMessagesForOpenAI(messages) {
   });
 }
 
-/**
- * Call OpenAI-compatible APIs (Groq, OpenRouter)
- */
 async function callOpenAICompatible(model, messages, endpoint, apiKey, provider) {
   const formattedMessages = formatMessagesForOpenAI(messages);
   
@@ -364,7 +353,6 @@ async function callOpenAICompatible(model, messages, endpoint, apiKey, provider)
   const data = await response.json();
   
   if (!response.ok) {
-    // Enhanced error handling
     const errorMsg = data?.error?.message || data?.error || `API error (${response.status})`;
     
     if (provider === "openrouter") {
@@ -384,7 +372,6 @@ async function callOpenAICompatible(model, messages, endpoint, apiKey, provider)
   const text = data?.choices?.[0]?.message?.content;
   if (!text) throw new Error("No reply returned from the API.");
   
-  // Log token usage for monitoring
   if (data?.usage) {
     console.log(`[${provider}] Usage - Prompt: ${data.usage.prompt_tokens}, Completion: ${data.usage.completion_tokens}, Total: ${data.usage.total_tokens}`);
   }
