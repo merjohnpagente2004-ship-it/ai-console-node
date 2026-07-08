@@ -109,6 +109,15 @@ const PROVIDERS = {
     free: false,
     docs: "https://docs.x.ai"
   }
+  ,
+zenmux: {
+  name: "ZenMux",
+  endpoint: "https://zenmux.ai/api/v1/chat/completions",
+  models: [
+    "anthropic/claude-fable-5-free"
+  ],
+  free: true
+}
 };
 
 // ==================== STATUS ENDPOINT ====================
@@ -155,7 +164,12 @@ app.post("/api/chat", async (req, res) => {
     let reply;
     if (provider === "gemini") {
       reply = await callGemini(model, messages, apiKey);
-    } else if (provider === "groq" || provider === "openrouter" || provider === "grok") {
+      } else if (
+    provider === "groq" ||
+    provider === "openrouter" ||
+    provider === "grok" ||
+    provider === "zenmux"
+) {
       reply = await callOpenAICompatible(model, messages, PROVIDERS[provider].endpoint, apiKey, provider);
     } else {
       return res.status(400).json({ error: `Unknown provider: ${provider}` });
@@ -390,6 +404,7 @@ app.listen(PORT, () => {
   console.log(`📊 Status:`);
   console.log(`   Gemini: ${Boolean(process.env.GEMINI_API_KEY) ? "✅" : "❌"}`);
   console.log(`   Groq: ${Boolean(process.env.GROQ_API_KEY) ? "✅" : "❌"}`);
+  console.log(`   ZenMux: ${Boolean(process.env.ZENMUX_API_KEY) ? "✅" : "❌"}`);
   console.log(`   OpenRouter: ${Boolean(process.env.OPENROUTER_API_KEY) ? "✅" : "❌"}`);
   console.log(`\n📱 APK Download available at: http://localhost:${PORT}/multiai.apk`);
   console.log(`📱 APK Info: http://localhost:${PORT}/api/apk-info`);
