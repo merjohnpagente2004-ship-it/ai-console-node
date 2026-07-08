@@ -6,7 +6,7 @@
   "type": "commonjs",
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "nodemon server.js"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.1",
@@ -18,5 +18,19 @@
     "dotenv": "^16.6.1",
     "express": "^4.22.2",
     "node-fetch": "^2.7.0"
-  }
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/merjohnpagente2004-ship-it/ai-console-node.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/merjohnpagente2004-ship-it/ai-console-node/issues"
+  },
+  "homepage": "https://github.com/merjohnpagente2004-ship-it/ai-console-node#readme"
 }
