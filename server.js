@@ -87,6 +87,7 @@ const PROVIDERS = {
     free: true
   },
   openrouter: {
+    
     name: "OpenRouter",
     endpoint: "https://openrouter.ai/api/v1/chat/completions",
     models: [
