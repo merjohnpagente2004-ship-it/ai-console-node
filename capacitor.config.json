@@ -8,24 +8,38 @@
     "allowNavigation": [
       "*"
     ],
-    "androidMixedContent": true
+    "androidMixedContent": true,
+    "cleartext": true
   },
   "android": {
     "allowMixedContent": true,
     "captureInput": true,
     "webContentsDebuggingEnabled": true,
+    "backgroundColor": "#09090d",
     "buildOptions": {
       "keystorePath": "",
       "keystoreAlias": "",
       "keystorePassword": "",
       "keyPassword": ""
-    }
+    },
+    "permissions": [
+      "INTERNET",
+      "ACCESS_NETWORK_STATE",
+      "CAMERA",
+      "READ_MEDIA_IMAGES",
+      "READ_MEDIA_VIDEO",
+      "READ_EXTERNAL_STORAGE",
+      "WRITE_EXTERNAL_STORAGE",
+      "VIBRATE"
+    ]
   },
   "ios": {
     "contentInset": "always",
     "allowsLinkPreview": true,
     "scrollEnabled": true,
-    "backgroundColor": "#09090d"
+    "backgroundColor": "#09090d",
+    "preferredContentMode": "mobile",
+    "limitsNavigationsToAppBoundDomains": false
   },
   "plugins": {
     "SplashScreen": {
@@ -34,12 +48,22 @@
       "androidScaleType": "CENTER_CROP",
       "showSpinner": false,
       "splashFullScreen": true,
-      "splashImmersive": true
+      "splashImmersive": true,
+      "launchAutoHide": true
     },
     "StatusBar": {
       "style": "DARK",
       "backgroundColor": "#09090d",
-      "overlaysWebView": false
+      "overlaysWebView": false,
+      "animation": "slide"
+    },
+    "Keyboard": {
+      "resize": "body",
+      "style": "dark",
+      "resizeOnFullScreen": true
+    },
+    "CapacitorHttp": {
+      "enabled": true
     }
   }
 }
