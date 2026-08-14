@@ -4,11 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
     <meta name="theme-color" content="#1b1b1a" />
-    <meta name="description" content="Merj Multi AI â€” one console for Gemini, Groq, OpenRouter and Grok. Type, paste or speak." />
+    <meta name="description" content="Merj Multi AI — one console for Gemini, Groq, OpenRouter and Grok. Type, paste or speak." />
     <title>Merj Multi AI</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/font.css">
     <script>
         (function () {
             try {
@@ -22,6 +22,7 @@
     </script>
     <script src="/icons.js"></script>
     <script src="/apikeys.js"></script>
+    <link rel="stylesheet" href="/ui.css">
     
 </head>
 <body>
@@ -30,7 +31,7 @@
     <div class="splash" id="splash" aria-hidden="true">
         <div class="splash-orb"><span class="inner" data-icon="sparkles"></span></div>
         <div class="splash-title">Merj <em>Multi AI</em></div>
-        <div class="splash-sub">one console Â· four engines</div>
+        <div class="splash-sub">one console · four engines</div>
         <div class="splash-bar"><span></span></div>
     </div>
 
@@ -194,7 +195,7 @@
                 <div class="empty-hero" id="emptyState">
                     <div class="empty-orb"><span class="ic" data-icon="sparkles"></span></div>
                     <h1>How can I help you today?</h1>
-                    <p class="empty-sub">Ask anything across <strong>Gemini</strong>, <strong>Groq</strong>, <strong>OpenRouter</strong> and <strong>Grok</strong> â€” one console, four engines.</p>
+                    <p class="empty-sub">Ask anything across <strong>Gemini</strong>, <strong>Groq</strong>, <strong>OpenRouter</strong> and <strong>Grok</strong> — one console, four engines.</p>
                     <div class="suggestion-grid">
                         <button class="suggestion-chip" data-prompt="Summarize the key points of the attached document for me.">
                             <span class="ic" data-icon="fileText"></span><span>Summarize a document</span>
@@ -217,14 +218,14 @@
         <div class="composer-wrap">
             <div class="update-banner" id="updateBanner" role="status">
                 <span class="ic" data-icon="sparkles"></span>
-                <span class="update-text">New update available â€” <strong id="updateVersion">v1.1.0</strong></span>
+                <span class="update-text">New update available — <strong id="updateVersion">v1.1.0</strong></span>
                 <button class="update-btn" id="updateBtn">Update</button>
                 <button class="update-close" id="updateClose" aria-label="Dismiss"><span class="ic" data-icon="x"></span></button>
             </div>
             <div class="listening-pill" id="listeningPill">
                 <span class="live-dot"></span>
                 <span class="waves"><span></span><span></span><span></span><span></span><span></span></span>
-                <span id="listeningText">Listeningâ€¦</span>
+                <span id="listeningText">Listening…</span>
                 <span class="hint">(tap mic to stop)</span>
             </div>
             <div class="composer" id="composer">
@@ -235,13 +236,13 @@
                     </div>
                     <div class="composer-main">
                         <input type="file" id="fileInput" accept="image/*,video/*" multiple style="display:none;" />
-                        <textarea id="userInput" placeholder="Message Merj Multi AIâ€¦" rows="1" aria-label="Message input"></textarea>
+                        <textarea id="userInput" placeholder="Message Merj Multi AI…" rows="1" aria-label="Message input"></textarea>
                     </div>
                     <button class="send-btn mic-mode" id="sendBtn" aria-label="Voice input"><span class="ic" data-icon="mic"></span></button>
                 </div>
                 <div class="composer-foot">
                     <span class="footnote">Merj Multi AI can make mistakes. Check important info.</span>
-                    <span class="paste-hint">Enter to send Â· <kbd>Shift</kbd>+<kbd>Enter</kbd> for new line Â· paste images</span>
+                    <span class="paste-hint">Enter to send · <kbd>Shift</kbd>+<kbd>Enter</kbd> for new line · paste images</span>
                 </div>
             </div>
         </div>
@@ -347,8 +348,6 @@
                     '</div>' +
                 '</div>';
             document.body.appendChild(overlay);
-            const keyIcon = overlay.querySelector('[data-icon="key"]');
-            if (keyIcon && window.ICON) keyIcon.innerHTML = window.ICON.key;
             const keys = getApiKeys();
             ['gemini','groq','openrouter','grok'].forEach(p => {
                 const field = overlay.querySelector('[data-key-field="' + p + '"]');
@@ -386,7 +385,7 @@
         });
 
         // ============================================================
-        //  SERVER MODE (browser) â€” optional in APK
+        //  SERVER MODE (browser) — optional in APK
         // ============================================================
         function getApiBase() {
             if (!isCapacitor) return '';
@@ -405,7 +404,7 @@
         }
 
         // ============================================================
-        //  DIRECT MODE (APK) â€” calls AI providers straight from the app
+        //  DIRECT MODE (APK) — calls AI providers straight from the app
         // ============================================================
         function directMsgsForBackend(messages) {
             return messages.map(m => ({
@@ -1348,10 +1347,10 @@
             els.listeningPill.classList.toggle("show", on);
             els.sendBtn.classList.toggle("listening", on);
             if (on) {
-                els.listeningText.textContent = "Listeningâ€¦";
-                els.userInput.placeholder = "Speak nowâ€¦";
+                els.listeningText.textContent = "Listening…";
+                els.userInput.placeholder = "Speak now…";
             } else {
-                els.userInput.placeholder = "Message Merj Multi AIâ€¦";
+                els.userInput.placeholder = "Message Merj Multi AI…";
             }
         }
 
@@ -1420,7 +1419,7 @@
             try {
                 recognition.start();
             } catch (e) {
-                // already started â€” ignore
+                // already started — ignore
             }
         }
 
@@ -1451,10 +1450,6 @@
         //  BACKEND (with streaming)
         // ============================================================
         async function streamReply(provider, model, msgs, onContent) {
-            if (isCapacitor) {
-                await directReply(provider, model, msgs, onContent);
-                return;
-            }
             const res = await safeFetch(apiUrl("/api/chat/stream"), {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -1651,7 +1646,6 @@
         renderHistoryList();
         loadStatus();
         refreshSendBtn();
-        updateApiKeysStatus();
 
         // Force APK download
         document.getElementById('downloadApkBtn')?.addEventListener('click', function(e) {
@@ -1766,7 +1760,7 @@
                         showToast("New version v" + info.version + " available", "info");
                     }
                     if (appVersionEl) {
-                        const sz = info.apkSize ? " Â· " + (info.apkSize / 1048576).toFixed(1) + " MB" : "";
+                        const sz = info.apkSize ? " · " + (info.apkSize / 1048576).toFixed(1) + " MB" : "";
                         appVersionEl.textContent = versionLt(installed, info.version) ? "v" + info.version + sz + " (update available)" : "v" + info.version + sz;
                     }
                 }

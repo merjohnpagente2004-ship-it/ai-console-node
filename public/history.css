@@ -1,25 +1,25 @@
 /* ============================================================
-   DESIGN TOKENS (shared with index.html) â€” monochrome B&W
+   DESIGN TOKENS (shared with index.html) — monochrome B&W
    ============================================================ */
 :root {
     color-scheme: dark;
-    --bg: #0a0a0a;
-    --bg-2: #101012;
-    --surface: #141416;
-    --surface-2: #1a1a1d;
-    --line: rgba(255, 255, 255, .09);
-    --line-2: rgba(255, 255, 255, .16);
-    --text: #f2f2f2;
-    --text-2: #b5b5b5;
-    --text-3: #7a7a7a;
+    --bg: #1b1b1a;
+    --bg-2: #20201f;
+    --surface: #222221;
+    --surface-2: #2a2a29;
+    --line: rgba(255, 255, 255, .08);
+    --line-2: rgba(255, 255, 255, .15);
+    --text: #ececea;
+    --text-2: #a8a8a4;
+    --text-3: #757572;
     --radius: 12px;
     --radius-sm: 8px;
 
-    /* Provider accents â€” muted, used only for tiny dots */
-    --p-gemini: #6ea8ff;
-    --p-groq: #ff7a59;
-    --p-openrouter: #a78bfa;
-    --p-grok: #b9c2d0;
+    /* Provider accents — muted, used only for tiny dots */
+    --p-gemini: #a3b8d6;
+    --p-groq: #d6a08a;
+    --p-openrouter: #b8a8d6;
+    --p-grok: #c0c0c0;
 
     --topbar-h: 66px;
     --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -29,15 +29,15 @@
 }
 :root[data-theme="light"] {
     color-scheme: light;
-    --bg: #f7f7f7;
+    --bg: #f6f5f2;
     --bg-2: #ffffff;
     --surface: #ffffff;
-    --surface-2: #f0f0f0;
-    --line: rgba(0, 0, 0, .09);
-    --line-2: rgba(0, 0, 0, .16);
-    --text: #111111;
-    --text-2: #444444;
-    --text-3: #888888;
+    --surface-2: #ebeae6;
+    --line: rgba(0, 0, 0, .08);
+    --line-2: rgba(0, 0, 0, .14);
+    --text: #161615;
+    --text-2: #5c5c58;
+    --text-3: #92928e;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -466,4 +466,3 @@ a { color: inherit; text-decoration: none; }
     .splash { display: none; }
 }
     
-
