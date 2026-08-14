@@ -21,6 +21,7 @@
         })();
     </script>
     <script src="/icons.js"></script>
+    <script src="/apikeys.js"></script>
     <style>
         /* ============================================================
            DESIGN TOKENS — Merj Multi AI (monochrome, Claude-inspired)
@@ -956,6 +957,11 @@
                     <span class="ic" data-icon="smartphone"></span> Download app
                     <span class="settings-right" id="apkSize">APK</span>
                 </a>
+                <div class="settings-item" id="apiKeysBtn" style="display:none;cursor:pointer;">
+                    <span class="ic" data-icon="key"></span>
+                    <span>API keys</span>
+                    <span class="settings-right" id="apiKeysStatus">In app</span>
+                </div>
                 <div class="app-version" title="App version">
                     <span class="ic" data-icon="info"></span>
                     <span>Version</span>
@@ -1126,11 +1132,94 @@
         ]);
 
         // ============================================================
-        //  API BASE (supports the Android APK build)
-        //  The APK runs inside a WebView on the phone, so relative
-        //  /api calls must be pointed at the Node server address.
+        //  APP MODE: DIRECT (APK) vs SERVER (web browser)
+        //  In the APK, AI calls go straight to the providers with the
+        //  embedded API keys (no PC server needed). In the browser,
+        //  calls go through the Node server which holds the keys.
         // ============================================================
         const isCapacitor = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+
+        const PROVIDER_ENDPOINTS = {
+            groq: "https://api.groq.com/openai/v1/chat/completions",
+            openrouter: "https://openrouter.ai/api/v1/chat/completions",
+            grok: "https://api.x.ai/v1/chat/completions"
+        };
+
+        function getApiKeys() {
+            const stored = (() => {
+                try { return JSON.parse(localStorage.getItem('merj_api_keys') || 'null'); }
+                catch (e) { return null; }
+            })();
+            const embedded = (window.MERJ_API_KEYS || {});
+            return {
+                gemini: (stored && stored.gemini) || embedded.gemini || '',
+                groq: (stored && stored.groq) || embedded.groq || '',
+                openrouter: (stored && stored.openrouter) || embedded.openrouter || '',
+                grok: (stored && stored.grok) || embedded.grok || ''
+            };
+        }
+        function getKeyFor(provider) {
+            return getApiKeys()[provider] || '';
+        }
+
+        function ensureApiKeys() {
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;inset:0;z-index:600;background:var(--scrim);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:20px;';
+            overlay.innerHTML =
+                '<div style="width:min(100%,420px);max-height:86vh;overflow-y:auto;background:var(--surface);border:1px solid var(--line-2);border-radius:16px;padding:22px;box-shadow:var(--shadow-lg);font-family:inherit;color:var(--text);">' +
+                    '<div style="font-size:16px;font-weight:500;margin-bottom:4px;display:flex;align-items:center;gap:9px;"><span class="ic" style="font-size:17px;color:var(--accent-2);" data-icon="key"></span> AI provider keys</div>' +
+                    '<div style="font-size:12.5px;color:var(--text-3);line-height:1.6;margin-bottom:14px;">The app ships with working keys. Only change these if you have your own keys from the provider sites.</div>' +
+                    ['gemini','groq','openrouter','grok'].map(p =>
+                        '<div style="margin-bottom:10px;">' +
+                            '<div style="font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;color:var(--text-3);margin-bottom:4px;">' + p + '</div>' +
+                            '<input data-key-field="' + p + '" type="text" placeholder="' + p + ' API key" style="width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line-2);background:var(--bg-2);color:var(--text);font-size:13px;outline:none;font-family:var(--font-mono);">' +
+                        '</div>'
+                    ).join('') +
+                    '<div style="display:flex;gap:9px;margin-top:14px;">' +
+                        '<button id="apiKeysSave" style="flex:1;padding:10px;border-radius:10px;border:none;background:var(--grad);color:var(--on-accent);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;">Save keys</button>' +
+                        '<button id="apiKeysCancel" style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--line-2);background:transparent;color:var(--text-2);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;">Cancel</button>' +
+                    '</div>' +
+                '</div>';
+            document.body.appendChild(overlay);
+            const keys = getApiKeys();
+            ['gemini','groq','openrouter','grok'].forEach(p => {
+                const field = overlay.querySelector('[data-key-field="' + p + '"]');
+                if (keys[p]) field.value = keys[p];
+            });
+            overlay.querySelector('[data-key-field="gemini"]').focus();
+            const close = () => overlay.remove();
+            overlay.querySelector('#apiKeysSave').addEventListener('click', () => {
+                const out = {};
+                ['gemini','groq','openrouter','grok'].forEach(p => {
+                    out[p] = overlay.querySelector('[data-key-field="' + p + '"]').value.trim();
+                });
+                localStorage.setItem('merj_api_keys', JSON.stringify(out));
+                close();
+                updateApiKeysStatus();
+                showToast('Keys saved', 'success');
+            });
+            overlay.querySelector('#apiKeysCancel').addEventListener('click', close);
+        }
+
+        function updateApiKeysStatus() {
+            const btn = document.getElementById('apiKeysBtn');
+            if (!btn) return;
+            btn.style.display = isCapacitor ? 'flex' : 'none';
+            const status = document.getElementById('apiKeysStatus');
+            const keys = getApiKeys();
+            const missing = ['gemini','groq','openrouter','grok'].filter(p => !keys[p]).length;
+            if (missing === 0) status.textContent = 'In app';
+            else if (missing === 4) status.textContent = 'Missing';
+            else status.textContent = missing + ' missing';
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            const btn = document.getElementById('apiKeysBtn');
+            if (btn) btn.addEventListener('click', ensureApiKeys);
+        });
+
+        // ============================================================
+        //  SERVER MODE (browser) — optional in APK
+        // ============================================================
         function getApiBase() {
             if (!isCapacitor) return '';
             return (localStorage.getItem('merj_api_base') || '').replace(/\/+$/, '');
@@ -1139,45 +1228,95 @@
             const base = getApiBase();
             return base ? base + path : path;
         }
-        function ensureApiBase() {
-            if (!isCapacitor || localStorage.getItem('merj_api_base')) return;
-            const overlay = document.createElement('div');
-            overlay.style.cssText = 'position:fixed;inset:0;z-index:600;background:var(--scrim);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:20px;';
-            overlay.innerHTML =
-                '<div style="width:min(100%,380px);background:var(--surface);border:1px solid var(--line-2);border-radius:16px;padding:22px;box-shadow:var(--shadow-lg);font-family:inherit;color:var(--text);text-align:center;">' +
-                    '<div style="font-size:16px;font-weight:500;margin-bottom:8px;">Connect to Merj server</div>' +
-                    '<div style="font-size:12.5px;color:var(--text-3);line-height:1.6;margin-bottom:14px;">Enter the address where the server is running, e.g. <strong style="color:var(--text-2);">http://192.168.1.5:3001</strong>. Your phone and the server must be on the same network.</div>' +
-                    '<input id="apiBaseInput" type="text" placeholder="http://192.168.1.5:3001" style="width:100%;padding:11px 13px;border-radius:10px;border:1px solid var(--line-2);background:var(--bg-2);color:var(--text);font-size:13.5px;outline:none;margin-bottom:12px;font-family:inherit;">' +
-                    '<div style="display:flex;gap:9px;">' +
-                        '<button id="apiBaseSave" style="flex:1;padding:10px;border-radius:10px;border:none;background:var(--grad);color:var(--on-accent);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;">Save</button>' +
-                        '<button id="apiBaseSkip" style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--line-2);background:transparent;color:var(--text-2);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;">Skip</button>' +
-                    '</div>' +
-                '</div>';
-            document.body.appendChild(overlay);
-            const input = overlay.querySelector('#apiBaseInput');
-            input.focus();
-            const close = () => overlay.remove();
-            overlay.querySelector('#apiBaseSave').addEventListener('click', () => {
-                const val = input.value.trim().replace(/\/+$/, '');
-                if (val) {
-                    localStorage.setItem('merj_api_base', val);
-                    close();
-                    showToast('Server address saved. Reconnecting...', 'success');
-                    location.reload();
-                }
-            });
-            overlay.querySelector('#apiBaseSkip').addEventListener('click', close);
-            input.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') overlay.querySelector('#apiBaseSave').click();
-            });
-        }
         async function safeFetch(path, options) {
             try {
                 return await fetch(apiUrl(path), options);
             } catch (e) {
-                if (isCapacitor) ensureApiBase();
                 throw e;
             }
+        }
+
+        // ============================================================
+        //  DIRECT MODE (APK) — calls AI providers straight from the app
+        // ============================================================
+        function directMsgsForBackend(messages) {
+            return messages.map(m => ({
+                role: m.role,
+                content: m.content,
+                media: m.media ? m.media.map(mm => ({ base64: mm.base64, mimeType: mm.mimeType, type: mm.type })) : undefined
+            }));
+        }
+
+        async function callGeminiDirect(model, messages, apiKey) {
+            const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + encodeURIComponent(model) + ':generateContent?key=' + encodeURIComponent(apiKey);
+            const contents = messages.map(m => {
+                const parts = [];
+                if (m.content) parts.push({ text: m.content });
+                (m.media || []).forEach(img => {
+                    parts.push({ inline_data: { mime_type: img.mimeType || 'image/jpeg', data: img.base64 } });
+                });
+                return { role: m.role === 'user' ? 'user' : 'model', parts };
+            });
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data && data.error && data.error.message ? data.error.message : 'Gemini API error (' + res.status + ')');
+            const text = (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts
+                ? data.candidates[0].content.parts.map(p => p.text).join('')
+                : '');
+            if (!text) throw new Error('Gemini returned no text (possibly blocked by safety filters).');
+            return text;
+        }
+
+        async function callOpenAICompatibleDirect(provider, model, messages, apiKey) {
+            const body = { model, messages: messages.map(m => {
+                if (m.media && m.media.length) {
+                    const content = [];
+                    if (m.content) content.push({ type: 'text', text: m.content });
+                    m.media.forEach(img => {
+                        content.push({ type: 'image_url', image_url: { url: 'data:' + (img.mimeType || 'image/jpeg') + ';base64,' + img.base64 } });
+                    });
+                    return { role: m.role === 'user' ? 'user' : 'assistant', content };
+                }
+                return { role: m.role === 'user' ? 'user' : 'assistant', content: m.content || '' };
+            }) };
+            const res = await fetch(PROVIDER_ENDPOINTS[provider], {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
+                body: JSON.stringify(body)
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                const msg = (data && data.error && data.error.message) || ('API error (' + res.status + ')');
+                if (res.status === 401) throw new Error('Invalid ' + provider + ' API key. Open Settings > API keys.');
+                if (res.status === 429) throw new Error(provider + ' rate limit exceeded. Please wait and try again.');
+                if (res.status === 402) throw new Error('OpenRouter requires credits for this model. Try a :free model.');
+                throw new Error(msg);
+            }
+            const text = data && data.choices && data.choices[0] && data.choices[0].message ? data.choices[0].message.content : '';
+            if (!text) throw new Error('No reply returned from the API.');
+            return text;
+        }
+
+        async function directReply(provider, model, msgs, onContent) {
+            const apiKey = getKeyFor(provider);
+            if (!apiKey) {
+                ensureApiKeys();
+                throw new Error('No API key for ' + provider + '. Enter your key in Settings > API keys.');
+            }
+            const messages = directMsgsForBackend(msgs);
+            let reply;
+            if (provider === 'gemini') {
+                reply = await callGeminiDirect(model, messages, apiKey);
+            } else if (PROVIDER_ENDPOINTS[provider]) {
+                reply = await callOpenAICompatibleDirect(provider, model, messages, apiKey);
+            } else {
+                throw new Error('Unknown provider: ' + provider);
+            }
+            onContent(reply);
         }
 
         // ============================================================
