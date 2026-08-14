@@ -19,7 +19,7 @@ app.get('/multiai.apk', (req, res) => {
     // I-check kung naa ba gyud ang file
     if (!fs.existsSync(apkPath)) {
         return res.status(404).send(`
-            <h1>❌ APK File Not Found</h1>
+            <h1>APK File Not Found</h1>
             <p>Please make sure <strong>multiai.apk</strong> is in the <strong>public</strong> folder.</p>
             <p>Current directory: ${__dirname}</p>
         `);
@@ -27,7 +27,7 @@ app.get('/multiai.apk', (req, res) => {
     
     // Get file stats
     const stat = fs.statSync(apkPath);
-    console.log(`📱 APK Download requested - Size: ${(stat.size / 1024 / 1024).toFixed(2)} MB`);
+    console.log(`[APK] Download requested - Size: ${(stat.size / 1024 / 1024).toFixed(2)} MB`);
     
     // I-set ang saktong headers para sa Android APK
     res.setHeader('Content-Type', 'application/vnd.android.package-archive');
@@ -42,10 +42,10 @@ app.get('/multiai.apk', (req, res) => {
     // I-send ang file
     res.sendFile(apkPath, (err) => {
         if (err) {
-            console.error('❌ Error sending APK:', err);
+            console.error('[APK] Error sending APK:', err);
             res.status(500).send('Error downloading APK file.');
         } else {
-            console.log('✅ APK sent successfully!');
+            console.log('[APK] Sent successfully!');
         }
     });
 });
@@ -77,13 +77,13 @@ const PROVIDERS = {
   gemini: {
     name: "Gemini",
     endpoint: "https://generativelanguage.googleapis.com/v1beta/models",
-    models: ["gemini-1.5-pro", "gemini-1.5-flash", "gemini-pro"],
+    models: ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.5-pro"],
     free: true
   },
   groq: {
     name: "Groq",
     endpoint: "https://api.groq.com/openai/v1/chat/completions",
-    models: ["llama-3.3-70b-versatile", "mixtral-8x7b-32768", "gemma2-9b-it"],
+    models: ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "mixtral-8x7b-32768"],
     free: true
   },
   openrouter: {
@@ -361,14 +361,14 @@ async function callOpenAICompatible(model, messages, endpoint, apiKey, provider)
     const errorMsg = data?.error?.message || data?.error || `API error (${response.status})`;
     
     if (provider === "openrouter") {
-      if (response.status === 401) throw new Error("❌ Invalid OpenRouter API key");
-      if (response.status === 429) throw new Error("⏳ OpenRouter rate limit exceeded. Please wait and try again.");
-      if (response.status === 402) throw new Error("💳 OpenRouter requires credits for this model. Try a :free model.");
+      if (response.status === 401) throw new Error("Invalid OpenRouter API key");
+      if (response.status === 429) throw new Error("OpenRouter rate limit exceeded. Please wait and try again.");
+      if (response.status === 402) throw new Error("OpenRouter requires credits for this model. Try a :free model.");
     }
     
     if (provider === "groq") {
-      if (response.status === 401) throw new Error("❌ Invalid Groq API key");
-      if (response.status === 429) throw new Error("⏳ Groq rate limit exceeded. Please wait and try again.");
+      if (response.status === 401) throw new Error("Invalid Groq API key");
+      if (response.status === 429) throw new Error("Groq rate limit exceeded. Please wait and try again.");
     }
     
     throw new Error(errorMsg);
@@ -391,16 +391,16 @@ app.get("*", (req, res) => {
 
 // ==================== START SERVER ====================
 app.listen(PORT, () => {
-  console.log(`🤖 AI Multi-Console running at http://localhost:${PORT}`);
-  console.log(`📊 Status:`);
-  console.log(`   Gemini: ${Boolean(process.env.GEMINI_API_KEY) ? "✅" : "❌"}`);
-  console.log(`   Groq: ${Boolean(process.env.GROQ_API_KEY) ? "✅" : "❌"}`);
-  console.log(`   OpenRouter: ${Boolean(process.env.OPENROUTER_API_KEY) ? "✅" : "❌"}`);
-  console.log(`\n📱 APK Download available at: http://localhost:${PORT}/multiai.apk`);
-  console.log(`📱 APK Info: http://localhost:${PORT}/api/apk-info`);
-  console.log(`\n🔥 OpenRouter Free Models:`);
-  console.log(`   • meta-llama/llama-3-70b-instruct:free (Best)`);
-  console.log(`   • deepseek/deepseek-chat:free (DeepSeek FREE!)`);
-  console.log(`   • mistralai/mistral-7b-instruct:free (Fast)`);
-  console.log(`   • microsoft/phi-3-mini-128k-instruct:free (128K context)`);
+  console.log(`[AI Multi-Console] Running at http://localhost:${PORT}`);
+  console.log(`[Status]`);
+  console.log(`   Gemini: ${Boolean(process.env.GEMINI_API_KEY) ? "OK" : "MISSING KEY"}`);
+  console.log(`   Groq: ${Boolean(process.env.GROQ_API_KEY) ? "OK" : "MISSING KEY"}`);
+  console.log(`   OpenRouter: ${Boolean(process.env.OPENROUTER_API_KEY) ? "OK" : "MISSING KEY"}`);
+  console.log(`\n[APK] Download available at: http://localhost:${PORT}/multiai.apk`);
+  console.log(`[APK] Info: http://localhost:${PORT}/api/apk-info`);
+  console.log(`\n[OpenRouter] Free Models:`);
+  console.log(`   - meta-llama/llama-3-70b-instruct:free (Best)`);
+  console.log(`   - deepseek/deepseek-chat:free (DeepSeek FREE!)`);
+  console.log(`   - mistralai/mistral-7b-instruct:free (Fast)`);
+  console.log(`   - microsoft/phi-3-mini-128k-instruct:free (128K context)`);
 });

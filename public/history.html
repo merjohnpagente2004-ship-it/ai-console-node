@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+    <meta name="theme-color" content="#1e1e22" />
+    <meta name="description" content="Merjohn Multi AI — your chat history across Gemini, Groq, OpenRouter and Grok." />
+    <title>History - Merjohn Multi AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="/icons.js"></script>
+    <style>
+        /* ============================================================
+           DESIGN TOKENS (shared with index.html)
+           ============================================================ */
+        :root {
+            --bg: #1e1e22;
+            --bg-2: #1a1a1e;
+            --surface: #232329;
+            --surface-2: #2b2b31;
+            --surface-3: #34343b;
+            --line: rgba(255, 255, 255, .09);
+            --line-2: rgba(255, 255, 255, .16);
+            --text: #ececf1;
+            --text-2: #b3b3bc;
+            --text-3: #7e7e88;
+            --accent: #8b5cf6;
+            --accent-2: #a78bfa;
+            --accent-3: #22d3ee;
+            --grad: linear-gradient(135deg, #818cf8 0%, #8b5cf6 55%, #22d3ee 130%);
+            --ok: #34d399;
+            --warn: #fbbf24;
+            --danger: #fb7185;
+            --p-gemini: #6ea8ff;
+            --p-groq: #ff7a59;
+            --p-openrouter: #a78bfa;
+            --p-grok: #b9c2d0;
+            --radius: 16px;
+            --radius-sm: 12px;
+            --topbar-h: 56px;
+            --shadow-lg: 0 24px 64px rgba(0, 0, 0, .45);
+            --shadow-sm: 0 4px 16px rgba(0, 0, 0, .22);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+            --ease-out: cubic-bezier(.2, .7, .3, 1);
+            --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            --font-mono: "JetBrains Mono", "SF Mono", Consolas, "Cascadia Code", monospace;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font-sans);
+            font-size: 15px;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-text-size-adjust: 100%;
+            touch-action: manipulation;
+        }
+        ::selection { background: rgba(139, 92, 246, .4); color: #fff; }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, .14); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, .24); }
+        * { scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, .14) transparent; }
+        button { font-family: inherit; }
+        input, select { font-family: inherit; }
+        button:focus-visible, a:focus-visible, [role="button"]:focus-visible {
+            outline: 2px solid rgba(139, 92, 246, .7);
+            outline-offset: 2px;
+        }
+        a { color: inherit; text-decoration: none; }
+
+        .ic { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; pointer-events: none; }
+        .ic svg { width: 1em; height: 1em; display: block; }
+
+        /* ============================================================
+           SPLASH SCREEN
+           ============================================================ */
+        .splash {
+            position: fixed; inset: 0; z-index: 999;
+            background: #121216;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 6px; text-align: center;
+            transition: opacity .5s var(--ease-out), visibility .5s;
+            opacity: 1; visibility: visible;
+        }
+        .splash.hide { opacity: 0; visibility: hidden; pointer-events: none; }
+        .splash-orb {
+            width: 84px; height: 84px; border-radius: 24px;
+            padding: 3px; background: var(--grad);
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 22px; animation: splash-glow 2s ease-in-out infinite;
+        }
+        .splash-orb .inner {
+            width: 100%; height: 100%; border-radius: 21px;
+            background: #121216;
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 38px;
+        }
+        .splash-title {
+            font-size: 26px; font-weight: 800; letter-spacing: -.8px; color: var(--text);
+            display: flex; align-items: baseline; gap: 8px;
+        }
+        .splash-title em {
+            font-style: normal; font-weight: 700;
+            background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent;
+        }
+        .splash-sub {
+            font-size: 12.5px; color: var(--text-3); letter-spacing: .3px;
+            font-family: var(--font-mono);
+            margin-top: 4px;
+        }
+        .splash-bar {
+            margin-top: 26px; width: 150px; height: 3px; border-radius: 99px;
+            background: rgba(255, 255, 255, .08); overflow: hidden;
+        }
+        .splash-bar span {
+            display: block; height: 100%; width: 40%;
+            background: var(--grad); border-radius: 99px;
+            animation: splash-slide 1.2s ease-in-out infinite;
+        }
+        @keyframes splash-glow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, .35); }
+            50% { box-shadow: 0 0 44px 6px rgba(139, 92, 246, .35); }
+        }
+        @keyframes splash-slide {
+            0% { transform: translateX(-120%); }
+            50% { transform: translateX(180%); }
+            100% { transform: translateX(-120%); }
+        }
+
+        /* ============================================================
+           TOPBAR
+           ============================================================ */
+        .topbar {
+            display: flex; align-items: center; gap: 12px;
+            padding: 0 16px; height: var(--topbar-h);
+            border-bottom: 1px solid var(--line);
+            flex-shrink: 0; min-height: var(--topbar-h); z-index: 10;
+            background: rgba(30, 30, 34, .85);
+            backdrop-filter: blur(16px) saturate(1.2); -webkit-backdrop-filter: blur(16px) saturate(1.2);
+        }
+        .topbar .back-btn {
+            width: 36px; height: 36px; border-radius: 999px;
+            border: 1px solid var(--line); background: var(--surface);
+            color: var(--text-2); cursor: pointer; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 17px; transition: all .18s;
+        }
+        .topbar .back-btn:hover { border-color: var(--line-2); color: var(--text); background: var(--surface-2); }
+        .topbar-title {
+            display: flex; align-items: center; gap: 9px;
+            font-size: 15.5px; font-weight: 700; letter-spacing: -.3px;
+            white-space: nowrap; overflow: hidden;
+        }
+        .topbar-title .ic { font-size: 17px; color: var(--accent-2); }
+        .topbar-title .count {
+            font-size: 11px; font-weight: 600; color: var(--text-3);
+            background: var(--surface-2); border: 1px solid var(--line);
+            padding: 2px 9px; border-radius: 999px;
+            font-variant-numeric: tabular-nums; flex-shrink: 0;
+        }
+        .topbar .spacer { flex: 1; }
+
+        .clear-all-btn {
+            display: flex; align-items: center; gap: 6px;
+            padding: 7px 13px; border-radius: 999px;
+            border: 1px solid var(--line); background: transparent;
+            color: var(--text-2); font-size: 12px; font-weight: 500;
+            cursor: pointer; transition: all .18s; flex-shrink: 0;
+        }
+        .clear-all-btn .ic { font-size: 13px; }
+        .clear-all-btn:hover { border-color: rgba(251, 113, 133, .4); color: var(--danger); background: rgba(251, 113, 133, .07); }
+        .clear-all-btn:disabled { opacity: .4; pointer-events: none; }
+
+        /* ============================================================
+           SEARCH BAR
+           ============================================================ */
+        .search-wrap { padding: 14px 16px 6px; flex-shrink: 0; }
+        .search-box {
+            position: relative; max-width: 560px; margin: 0 auto;
+        }
+        .search-box .ic {
+            position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+            font-size: 15px; color: var(--text-3); pointer-events: none;
+        }
+        .search-box input {
+            width: 100%;
+            appearance: none; -webkit-appearance: none;
+            background: var(--surface); border: 1px solid var(--line);
+            color: var(--text); font-size: 13.5px;
+            padding: 10px 38px 10px 38px;
+            border-radius: 999px; outline: none;
+            transition: border-color .18s, background .18s;
+        }
+        .search-box input::placeholder { color: var(--text-3); }
+        .search-box input:focus { border-color: rgba(139, 92, 246, .55); box-shadow: 0 0 0 3px rgba(139, 92, 246, .15); background: var(--surface-2); }
+        .search-box .clear-search {
+            position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+            width: 28px; height: 28px; border-radius: 999px;
+            border: none; background: transparent; color: var(--text-3);
+            cursor: pointer; display: none; align-items: center; justify-content: center;
+            font-size: 13px; transition: color .15s, background .15s;
+        }
+        .search-box .clear-search:hover { color: var(--text); background: var(--surface-3); }
+        .search-box.has-text .clear-search { display: flex; }
+
+        /* ============================================================
+           HISTORY LIST
+           ============================================================ */
+        .list-scroll {
+            flex: 1; overflow-y: auto;
+            padding: 10px 16px calc(24px + var(--safe-bottom));
+        }
+        .group { max-width: 860px; margin: 0 auto; }
+        .group-label {
+            font-size: 11px; font-weight: 700; letter-spacing: .7px; text-transform: uppercase;
+            color: var(--text-3);
+            padding: 16px 6px 8px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .group-label::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+        .group:first-of-type .group-label { padding-top: 6px; }
+
+        .chat-row {
+            display: flex; align-items: center; gap: 13px;
+            padding: 12px 14px;
+            border-radius: var(--radius-sm);
+            background: var(--surface);
+            border: 1px solid var(--line);
+            cursor: pointer;
+            transition: background .15s, border-color .15s, transform .15s;
+            margin-bottom: 8px;
+            touch-action: manipulation;
+            animation: row-in .3s var(--ease-out) both;
+        }
+        .chat-row:hover { background: var(--surface-2); border-color: var(--line-2); }
+        .chat-row:active { transform: scale(.99); }
+        @keyframes row-in {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: none; }
+        }
+
+        .chat-avatar {
+            width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px; font-weight: 800; color: rgba(255, 255, 255, .92);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, .18);
+        }
+        .chat-avatar[data-provider="gemini"] { background: linear-gradient(135deg, rgba(66,133,244,.85), rgba(155,114,203,.85)); }
+        .chat-avatar[data-provider="groq"] { background: linear-gradient(135deg, rgba(245,80,54,.9), rgba(255,138,92,.9)); }
+        .chat-avatar[data-provider="openrouter"] { background: linear-gradient(135deg, rgba(124,58,237,.9), rgba(167,139,250,.9)); }
+        .chat-avatar[data-provider="grok"] { background: linear-gradient(135deg, rgba(148,163,184,.9), rgba(203,213,225,.9)); color: #0f172a; }
+
+        .chat-main { flex: 1; min-width: 0; }
+        .chat-title {
+            font-size: 14px; font-weight: 600; color: var(--text);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .chat-meta {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 11.5px; color: var(--text-3);
+            margin-top: 2px;
+            flex-wrap: wrap;
+        }
+        .chat-meta .provider-name { font-weight: 600; color: var(--text-2); }
+        .chat-meta .sep { opacity: .5; }
+        .chat-meta .msg-count { font-variant-numeric: tabular-nums; display: flex; align-items: center; gap: 4px; }
+        .chat-meta .msg-count .ic { font-size: 11px; }
+
+        .chat-actions { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+        .open-arrow {
+            width: 30px; height: 30px; border-radius: 999px;
+            border: none; background: transparent; color: var(--text-3);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; cursor: pointer;
+            transition: all .15s;
+        }
+        .chat-row:hover .open-arrow { color: var(--accent-2); background: rgba(139, 92, 246, .1); }
+        .chat-del {
+            width: 30px; height: 30px; border-radius: 999px;
+            border: none; background: transparent; color: var(--text-3);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13.5px; cursor: pointer;
+            transition: all .15s;
+        }
+        .chat-del:hover { color: var(--danger); background: rgba(251, 113, 133, .12); }
+
+        /* ============================================================
+           EMPTY STATE
+           ============================================================ */
+        .empty {
+            flex: 1; display: none;
+            flex-direction: column; align-items: center; justify-content: center;
+            gap: 10px; text-align: center; padding: 40px 20px;
+        }
+        .empty.show { display: flex; }
+        .empty-orb {
+            width: 68px; height: 68px; border-radius: 22px;
+            background: var(--surface); border: 1px solid var(--line);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--text-3); font-size: 28px; margin-bottom: 8px;
+        }
+        .empty-title { font-size: 16.5px; font-weight: 700; color: var(--text); }
+        .empty-sub { font-size: 13px; color: var(--text-3); max-width: 300px; }
+        .empty-cta {
+            margin-top: 14px;
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 11px 22px; border-radius: 999px;
+            background: var(--grad); color: #fff;
+            font-size: 13.5px; font-weight: 600; border: none; cursor: pointer;
+            box-shadow: 0 8px 24px rgba(139, 92, 246, .35);
+            transition: transform .15s, box-shadow .15s;
+        }
+        .empty-cta:hover { transform: translateY(-1px); box-shadow: 0 12px 30px rgba(139, 92, 246, .45); }
+        .empty-cta .ic { font-size: 15px; }
+
+        /* ============================================================
+           CONFIRM MODAL
+           ============================================================ */
+        .modal-overlay {
+            position: fixed; inset: 0; z-index: 90;
+            background: rgba(3, 4, 8, .65);
+            backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+            display: none; align-items: center; justify-content: center;
+            padding: 20px;
+        }
+        .modal-overlay.show { display: flex; animation: overlay-in .2s ease both; }
+        @keyframes overlay-in { from { opacity: 0; } to { opacity: 1; } }
+        .modal {
+            width: min(100%, 360px);
+            background: var(--surface-2);
+            border: 1px solid var(--line-2);
+            border-radius: var(--radius);
+            padding: 22px;
+            box-shadow: var(--shadow-lg);
+            animation: modal-in .25s var(--ease-out) both;
+        }
+        @keyframes modal-in { from { opacity: 0; transform: scale(.96) translateY(8px); } to { opacity: 1; transform: none; } }
+        .modal-title {
+            display: flex; align-items: center; gap: 9px;
+            font-size: 16px; font-weight: 700;
+        }
+        .modal-title .ic {
+            width: 32px; height: 32px; border-radius: 10px;
+            background: rgba(251, 113, 133, .14); color: var(--danger);
+            font-size: 16px; display: inline-flex; align-items: center; justify-content: center;
+        }
+        .modal-text { font-size: 13.5px; color: var(--text-2); margin-top: 10px; line-height: 1.6; }
+        .modal-btns { display: flex; gap: 9px; margin-top: 20px; }
+        .modal-btns button {
+            flex: 1; padding: 10px; border-radius: 10px;
+            font-size: 13px; font-weight: 600; cursor: pointer;
+            transition: all .15s; touch-action: manipulation;
+        }
+        .btn-cancel { background: var(--surface-3); color: var(--text-2); border: 1px solid var(--line); }
+        .btn-cancel:hover { color: var(--text); }
+        .btn-danger { background: var(--danger); color: #fff; border: none; box-shadow: 0 6px 20px rgba(251, 113, 133, .35); }
+        .btn-danger:hover { filter: brightness(1.08); }
+
+        /* ============================================================
+           TOASTS
+           ============================================================ */
+        .toast-root {
+            position: fixed; bottom: calc(20px + var(--safe-bottom)); left: 50%;
+            transform: translateX(-50%); z-index: 120;
+            display: flex; flex-direction: column; align-items: center; gap: 8px;
+            pointer-events: none;
+        }
+        .toast {
+            display: flex; align-items: center; gap: 8px;
+            background: var(--surface-2); border: 1px solid var(--line-2);
+            color: var(--text); font-size: 13px; font-weight: 500;
+            padding: 10px 16px; border-radius: 999px;
+            box-shadow: var(--shadow-sm);
+            opacity: 0; transform: translateY(10px);
+            transition: opacity .25s, transform .25s;
+            pointer-events: none; max-width: 90vw;
+        }
+        .toast.show { opacity: 1; transform: none; }
+        .toast .ic { font-size: 15px; }
+        .toast.success .ic { color: var(--ok); }
+        .toast.error .ic { color: var(--danger); }
+        .toast.info .ic { color: var(--accent-2); }
+
+        /* ============================================================
+           FOOTER CREDITS
+           ============================================================ */
+        .footer {
+            flex-shrink: 0;
+            border-top: 1px solid var(--line);
+            padding: 10px 16px calc(10px + var(--safe-bottom));
+            background: var(--bg-2);
+        }
+        .footer-inner {
+            max-width: 860px; margin: 0 auto;
+            display: flex; align-items: center; justify-content: space-between; gap: 10px;
+            flex-wrap: wrap;
+        }
+        .credits { display: flex; align-items: center; gap: 9px; }
+        .credits-avatar {
+            width: 30px; height: 30px; border-radius: 50%;
+            background: var(--grad);
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 13px; flex-shrink: 0;
+            box-shadow: 0 3px 12px rgba(139, 92, 246, .35), inset 0 1px 0 rgba(255,255,255,.25);
+        }
+        .credits-meta { line-height: 1.35; min-width: 0; }
+        .credits-role { font-size: 9px; color: var(--text-3); letter-spacing: .6px; text-transform: uppercase; display: flex; align-items: center; gap: 4px; }
+        .credits-role .ic { font-size: 9px; color: var(--danger); }
+        .credits-name { font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .credits-tag { font-size: 9px; color: var(--accent-2); font-family: var(--font-mono); }
+        .footer-note { font-size: 11.5px; color: var(--text-3); text-align: right; }
+
+        /* ============================================================
+           RESPONSIVE
+           ============================================================ */
+        @media (max-width: 560px) {
+            .topbar { padding: 0 12px; gap: 10px; }
+            .topbar-title { font-size: 14.5px; }
+            .clear-all-btn { padding: 7px 10px; }
+            .chat-avatar { width: 36px; height: 36px; border-radius: 10px; font-size: 13px; }
+            .chat-row { padding: 11px 12px; gap: 11px; }
+            .footer-inner { justify-content: center; text-align: center; }
+            .footer-note { text-align: center; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SPLASH -->
+    <div class="splash" id="splash">
+        <div class="splash-orb"><div class="inner"><span class="ic" data-icon="messageCircle"></span></div></div>
+        <div class="splash-title">Merjohn <em>Multi AI</em></div>
+        <div class="splash-sub">CHAT HISTORY</div>
+        <div class="splash-bar"><span></span></div>
+    </div>
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+        <a class="back-btn" href="/" aria-label="Back to chat" title="Back to chat"><span class="ic" data-icon="arrowLeft"></span></a>
+        <div class="topbar-title">
+            <span class="ic" data-icon="clock"></span>
+            <span>Chat History</span>
+            <span class="count" id="chatCount">0 chats</span>
+        </div>
+        <div class="spacer"></div>
+        <button class="clear-all-btn" id="clearAllBtn" title="Clear all history">
+            <span class="ic" data-icon="trash"></span>
+            <span class="clear-all-label">Clear all</span>
+        </button>
+    </header>
+
+    <!-- SEARCH -->
+    <div class="search-wrap">
+        <div class="search-box" id="searchBox">
+            <span class="ic" data-icon="search"></span>
+            <input id="searchInput" type="search" placeholder="Search chats..." autocomplete="off" />
+            <button class="clear-search" id="clearSearchBtn" aria-label="Clear search"><span class="ic" data-icon="x"></span></button>
+        </div>
+    </div>
+
+    <!-- LIST -->
+    <main class="list-scroll" id="listScroll"></main>
+
+    <!-- EMPTY STATE -->
+    <div class="empty" id="emptyState">
+        <div class="empty-orb"><span class="ic" data-icon="inbox"></span></div>
+        <div class="empty-title" id="emptyTitle">No chat history yet</div>
+        <div class="empty-sub" id="emptySub">Start a conversation and it will show up here, grouped by day.</div>
+        <a class="empty-cta" href="/">
+            <span class="ic" data-icon="plus"></span>
+            <span>Start a new chat</span>
+        </a>
+    </div>
+
+    <!-- CONFIRM MODAL -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+            <div class="modal-title"><span class="ic" data-icon="alert"></span><span id="modalTitle">Clear all history?</span></div>
+            <div class="modal-text" id="modalText">This cannot be undone.</div>
+            <div class="modal-btns">
+                <button class="btn-cancel" id="modalCancel">Cancel</button>
+                <button class="btn-danger" id="modalConfirm">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOASTS -->
+    <div class="toast-root" id="toastRoot"></div>
+
+    <!-- FOOTER CREDITS -->
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="credits" title="App developed by Merjohn Pagente">
+                <div class="credits-avatar"><span class="ic" data-icon="sparkles"></span></div>
+                <div class="credits-meta">
+                    <div class="credits-role"><span class="ic" data-icon="heart"></span> Developed by</div>
+                    <div class="credits-name">Merjohn Pagente</div>
+                    <div class="credits-tag">Merj Multi AI v1.0</div>
+                </div>
+            </div>
+            <div class="footer-note">Merj Multi AI - Gemini, Groq, OpenRouter, Grok</div>
+        </div>
+    </footer>
+
+    <script>
+        // ============================================================
+        //  SPLASH
+        // ============================================================
+        fillIcons(document);
+        const splashEl = document.getElementById('splash');
+        setTimeout(() => {
+            splashEl.classList.add('hide');
+            setTimeout(() => splashEl.remove(), 550);
+        }, 1200);
+
+        // ============================================================
+        //  HELPERS
+        // ============================================================
+        const $ = (s) => document.querySelector(s);
+        const $$ = (s) => document.querySelectorAll(s);
+
+        const PROVIDER_META = {
+            gemini: { name: "Gemini", initial: "G" },
+            groq: { name: "Groq", initial: "G" },
+            openrouter: { name: "OpenRouter", initial: "O" },
+            grok: { name: "Grok", initial: "G" }
+        };
+
+        function showToast(message, type = "info") {
+            const root = document.getElementById("toastRoot");
+            const t = document.createElement("div");
+            t.className = "toast " + type;
+            const ic = type === "success" ? "check" : type === "error" ? "alert" : "info";
+            t.innerHTML = icon(ic) + '<span></span>';
+            t.querySelector("span").textContent = message;
+            root.appendChild(t);
+            requestAnimationFrame(() => t.classList.add("show"));
+            setTimeout(() => {
+                t.classList.remove("show");
+                setTimeout(() => t.remove(), 350);
+            }, 2200);
+        }
+
+        function escapeHtml(s) {
+            return String(s == null ? "" : s)
+                .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+        }
+
+        function getChatTitle(chat) {
+            const firstUser = (chat.messages || []).find(m => m.role === "user" && m.content && m.content.trim());
+            if (firstUser) {
+                const text = firstUser.content.replace(/\s+/g, " ").trim();
+                return text.length > 60 ? text.slice(0, 60) + "..." : text;
+            }
+            return "New chat";
+        }
+
+        function countMessages(chat) {
+            return (chat.messages || []).length;
+        }
+
+        function getProviderMeta(chat) {
+            return PROVIDER_META[chat.provider] || PROVIDER_META.gemini;
+        }
+
+        function startOfDay(d) {
+            const x = new Date(d);
+            x.setHours(0, 0, 0, 0);
+            return x;
+        }
+
+        function dayDiff(date) {
+            const today = startOfDay(new Date());
+            const d = startOfDay(new Date(date));
+            return Math.round((today - d) / 86400000);
+        }
+
+        function formatTime(date) {
+            return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+        }
+
+        function formatDate(date) {
+            const now = new Date();
+            const sameYear = date.getFullYear() === now.getFullYear();
+            return date.toLocaleDateString([], sameYear
+                ? { month: 'short', day: 'numeric' }
+                : { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        function getGroupKey(date) {
+            const diff = dayDiff(date);
+            if (diff <= 0) return "Today";
+            if (diff === 1) return "Yesterday";
+            if (diff < 7) return "This Week";
+            if (diff < 30) return "This Month";
+            return "Older";
+        }
+
+        const GROUP_ORDER = ["Today", "Yesterday", "This Week", "This Month", "Older"];
+
+        // ============================================================
+        //  STORAGE
+        // ============================================================
+        let chatHistory = [];
+
+        function loadChats() {
+            try {
+                const stored = localStorage.getItem('deepseek_chat_history');
+                if (stored) {
+                    chatHistory = JSON.parse(stored);
+                    chatHistory = chatHistory.filter(chat => chat && chat.id);
+                } else {
+                    chatHistory = [];
+                }
+            } catch (e) {
+                console.warn('Failed to load chats:', e);
+                chatHistory = [];
+            }
+        }
+
+        function saveChats() {
+            try {
+                localStorage.setItem('deepseek_chat_history', JSON.stringify(chatHistory));
+            } catch (e) {
+                console.warn('Failed to save chats:', e);
+            }
+        }
+
+        // ============================================================
+        //  RENDER
+        // ============================================================
+        const listScroll = $("#listScroll");
+        const emptyState = $("#emptyState");
+        const chatCount = $("#chatCount");
+        const searchInput = $("#searchInput");
+        const searchBox = $("#searchBox");
+        const clearSearchBtn = $("#clearSearchBtn");
+        const clearAllBtn = $("#clearAllBtn");
+
+        function renderList() {
+            const query = searchInput.value.trim().toLowerCase();
+            const filtered = query
+                ? chatHistory.filter(c =>
+                    getChatTitle(c).toLowerCase().includes(query) ||
+                    (c.messages || []).some(m => (m.content || "").toLowerCase().includes(query)))
+                : chatHistory.slice();
+
+            chatCount.textContent = filtered.length + " chat" + (filtered.length !== 1 ? "s" : "");
+            clearAllBtn.disabled = chatHistory.length === 0;
+
+            if (chatHistory.length === 0) {
+                emptyState.classList.add("show");
+                $("#emptyTitle").textContent = "No chat history yet";
+                $("#emptySub").textContent = "Start a conversation and it will show up here, grouped by day.";
+                listScroll.innerHTML = "";
+                return;
+            }
+            if (filtered.length === 0) {
+                emptyState.classList.add("show");
+                $("#emptyTitle").textContent = "No matches found";
+                $("#emptySub").textContent = 'Nothing matches "' + searchInput.value.trim() + '". Try a different search.';
+                listScroll.innerHTML = "";
+                return;
+            }
+            emptyState.classList.remove("show");
+
+            const grouped = {};
+            filtered.forEach(chat => {
+                const date = new Date(chat.createdAt || Date.now());
+                const key = getGroupKey(date);
+                (grouped[key] = grouped[key] || []).push({ chat, date });
+            });
+
+            let html = "";
+            GROUP_ORDER.forEach(key => {
+                const items = grouped[key];
+                if (!items || !items.length) return;
+                html += '<div class="group"><div class="group-label">' + key + '</div>';
+                items.forEach(({ chat, date }) => {
+                    const meta = getProviderMeta(chat);
+                    const title = getChatTitle(chat);
+                    const count = countMessages(chat);
+                    const when = dayDiff(date) <= 0
+                        ? formatTime(date)
+                        : dayDiff(date) === 1 ? "Yesterday" : formatDate(date);
+                    html += '' +
+                        '<div class="chat-row" data-chat-id="' + escapeHtml(chat.id) + '" role="button" tabindex="0">' +
+                            '<div class="chat-avatar" data-provider="' + escapeHtml(chat.provider || "gemini") + '">' + meta.initial + '</div>' +
+                            '<div class="chat-main">' +
+                                '<div class="chat-title">' + escapeHtml(title) + '</div>' +
+                                '<div class="chat-meta">' +
+                                    '<span class="provider-name">' + meta.name + '</span>' +
+                                    '<span class="sep">|</span>' +
+                                    '<span>' + when + '</span>' +
+                                    '<span class="sep">|</span>' +
+                                    '<span class="msg-count"><span class="ic" data-icon="messageCircle"></span>' + count + '</span>' +
+                                '</div>' +
+                            '</div>' +
+                            '<div class="chat-actions">' +
+                                '<button class="open-arrow" title="Open chat"><span class="ic" data-icon="arrowRight"></span></button>' +
+                                '<button class="chat-del" title="Delete chat"><span class="ic" data-icon="trash"></span></button>' +
+                            '</div>' +
+                        '</div>';
+                });
+                html += '</div>';
+            });
+            listScroll.innerHTML = html;
+            fillIcons(listScroll);
+        }
+
+        // ============================================================
+        //  ACTIONS
+        // ============================================================
+        function openChat(id) {
+            window.location.href = '/?chat=' + encodeURIComponent(id);
+        }
+
+        function deleteChat(id) {
+            const before = chatHistory.length;
+            chatHistory = chatHistory.filter(c => c.id !== id);
+            if (chatHistory.length !== before) {
+                saveChats();
+                renderList();
+                showToast("Chat deleted", "success");
+            }
+        }
+
+        function confirmClearAll() {
+            if (!chatHistory.length) return;
+            const overlay = $("#modalOverlay");
+            $("#modalTitle").textContent = "Clear all history?";
+            $("#modalText").textContent = "This will permanently delete " + chatHistory.length + " chat" + (chatHistory.length !== 1 ? "s" : "") + ". This cannot be undone.";
+            overlay.classList.add("show");
+            pendingClear = true;
+        }
+
+        let pendingClear = false;
+
+        $("#modalCancel").addEventListener("click", () => {
+            $("#modalOverlay").classList.remove("show");
+            pendingClear = false;
+        });
+        $("#modalConfirm").addEventListener("click", () => {
+            $("#modalOverlay").classList.remove("show");
+            if (pendingClear) {
+                chatHistory = [];
+                saveChats();
+                renderList();
+                showToast("All history cleared", "success");
+            }
+            pendingClear = false;
+        });
+        $("#modalOverlay").addEventListener("click", (e) => {
+            if (e.target === $("#modalOverlay")) {
+                $("#modalOverlay").classList.remove("show");
+                pendingClear = false;
+            }
+        });
+
+        listScroll.addEventListener("click", (e) => {
+            const delBtn = e.target.closest(".chat-del");
+            const row = e.target.closest(".chat-row");
+            if (!row) return;
+            if (delBtn) {
+                e.stopPropagation();
+                deleteChat(row.dataset.chatId);
+                return;
+            }
+            openChat(row.dataset.chatId);
+        });
+        listScroll.addEventListener("keydown", (e) => {
+            if (e.key !== "Enter" && e.key !== " ") return;
+            const row = e.target.closest(".chat-row");
+            if (!row) return;
+            e.preventDefault();
+            openChat(row.dataset.chatId);
+        });
+
+        clearAllBtn.addEventListener("click", confirmClearAll);
+
+        // ============================================================
+        //  SEARCH
+        // ============================================================
+        searchInput.addEventListener("input", () => {
+            searchBox.classList.toggle("has-text", searchInput.value.length > 0);
+            renderList();
+        });
+        clearSearchBtn.addEventListener("click", () => {
+            searchInput.value = "";
+            searchBox.classList.remove("has-text");
+            renderList();
+            searchInput.focus();
+        });
+        document.addEventListener("keydown", (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+                e.preventDefault();
+                searchInput.focus();
+                searchInput.select();
+            }
+        });
+
+        // ============================================================
+        //  INIT
+        // ============================================================
+        loadChats();
+        renderList();
+    </script>
+</body>
+</html>
