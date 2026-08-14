@@ -72,6 +72,23 @@ app.get('/api/apk-info', (req, res) => {
     }
 });
 
+// ==================== APP INFO ENDPOINT ====================
+app.get('/api/app-info', (req, res) => {
+  let version = '1.0.0';
+  try { version = require('./package.json').version; } catch (e) { /* ignore */ }
+  const apkPath = path.join(__dirname, 'public', 'multiai.apk');
+  let apkSize = null;
+  let updatedAt = null;
+  try {
+    if (fs.existsSync(apkPath)) {
+      const st = fs.statSync(apkPath);
+      apkSize = st.size;
+      updatedAt = st.mtime.toISOString();
+    }
+  } catch (e) { /* ignore */ }
+  res.json({ name: 'Merj Multi AI', version, apkUrl: '/multiai.apk', apkSize, updatedAt });
+});
+
 // ==================== CONFIGURATION ====================
 const PROVIDERS = {
   gemini: {
@@ -283,7 +300,8 @@ async function callGemini(model, messages, apiKey) {
   const contents = messages.map((m) => {
     const parts = [];
     if (m.content) parts.push({ text: m.content });
-    (m.images || []).forEach((img) => {
+    const media = m.media || m.images || [];
+    media.forEach((img) => {
       parts.push({ 
         inline_data: { 
           mime_type: img.mimeType || "image/jpeg", 
@@ -314,10 +332,12 @@ async function callGemini(model, messages, apiKey) {
 
 function formatMessagesForOpenAI(messages) {
   return messages.map((m) => {
-    if (m.images && m.images.length) {
+    const media = m.media || m.images || [];
+    const images = media.filter((x) => x.type !== "video");
+    if (images.length) {
       const content = [];
       if (m.content) content.push({ type: "text", text: m.content });
-      m.images.forEach((img) => {
+      images.forEach((img) => {
         content.push({ 
           type: "image_url", 
           image_url: { 

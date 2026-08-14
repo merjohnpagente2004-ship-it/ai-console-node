@@ -1,6 +1,6 @@
 {
   "name": "ai-multi-console",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Local AI console that routes prompts to Gemini, Groq, and DeepSeek via a Node/Express backend",
   "main": "server.js",
   "type": "commonjs",
