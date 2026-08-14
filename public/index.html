@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
-    <meta name="theme-color" content="#1e1e22" />
+    <meta name="theme-color" content="#0a0a0a" />
     <meta name="description" content="Merjohn Multi AI — one console for Gemini, Groq, OpenRouter and Grok. Type, paste or speak." />
     <title>Merjohn Multi AI</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -400,7 +400,11 @@
         /* ============================================================
            MAIN & TOPBAR (ChatGPT-style)
            ============================================================ */
-        .main { flex: 1; display: flex; flex-direction: column; height: 100vh; min-width: 0; position: relative; overflow: hidden; }
+        .main { flex: 1; display: flex; flex-direction: column; height: 100vh; min-width: 0; position: relative; overflow: hidden;
+            background:
+                radial-gradient(1100px 520px at 50% -10%, var(--glow-soft), transparent 65%),
+                var(--bg);
+        }
         .topbar {
             display: flex; align-items: center; justify-content: space-between; gap: 10px;
             padding: 0 20px; height: var(--topbar-h);
@@ -578,17 +582,17 @@
            ============================================================ */
         .code-block {
             margin: 12px 0; border-radius: 13px; overflow: hidden;
-            border: 1px solid var(--line); background: #101014;
+            border: 1px solid var(--line); background: var(--code-bg);
             box-shadow: var(--shadow-sm);
         }
         .code-block .code-header {
             display: flex; align-items: center; justify-content: space-between;
-            padding: 7px 13px; background: rgba(255, 255, 255, .04);
+            padding: 7px 13px; background: var(--hover-tint);
             border-bottom: 1px solid var(--line); font-size: 11px; color: var(--text-2);
             flex-wrap: wrap; gap: 4px;
         }
         .code-block .code-header > span { display: flex; align-items: center; gap: 5px; font-family: var(--font-mono); font-size: 10.5px; }
-        .code-block .code-header > span .ic { color: var(--accent-3); font-size: 11px; }
+        .code-block .code-header > span .ic { color: var(--text-3); font-size: 11px; }
         .code-block .code-actions { display: flex; gap: 5px; flex-wrap: wrap; }
         .code-block .code-actions button {
             background: transparent; border: 1px solid var(--line); color: var(--text-2);
@@ -597,8 +601,8 @@
             touch-action: manipulation;
         }
         .code-block .code-actions button .ic { font-size: 11px; }
-        .code-block .code-actions button:hover { border-color: rgba(139, 92, 246, .5); color: var(--text); background: rgba(139, 92, 246, .12); }
-        .code-block pre { margin: 0; padding: 13px; overflow-x: auto; font-family: var(--font-mono); font-size: 12.5px; line-height: 1.6; color: #d8dbe6; -webkit-overflow-scrolling: touch; }
+        .code-block .code-actions button:hover { border-color: var(--line-2); color: var(--text); background: var(--hover-tint); }
+        .code-block pre { margin: 0; padding: 13px; overflow-x: auto; font-family: var(--font-mono); font-size: 12.5px; line-height: 1.6; color: var(--code-text); -webkit-overflow-scrolling: touch; }
 
         /* ============================================================
            MESSAGE ACTIONS
@@ -642,29 +646,29 @@
             border: 1px solid var(--line-2);
             padding: 8px 10px;
             transition: border-color .2s, box-shadow .2s;
-            box-shadow: 0 8px 28px rgba(0, 0, 0, .3);
+            box-shadow: 0 8px 28px var(--shadow-sm);
         }
-        .composer:focus-within { border-color: rgba(139, 92, 246, .5); box-shadow: 0 0 0 3px rgba(139, 92, 246, .12), 0 8px 28px rgba(0, 0, 0, .3); }
+        .composer:focus-within { border-color: var(--text-3); box-shadow: 0 0 0 3px var(--glow-soft), 0 8px 28px var(--shadow-sm); }
         .composer.listening { border-color: rgba(251, 113, 133, .55); box-shadow: 0 0 0 3px rgba(251, 113, 133, .14), 0 8px 28px rgba(0, 0, 0, .3); }
 
         .attachments { display: flex; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
         .thumb {
             position: relative; width: 54px; height: 54px;
             border-radius: 11px; overflow: hidden;
-            border: 1px solid var(--line-2); background: #101014; flex-shrink: 0;
+            border: 1px solid var(--line-2); background: var(--code-bg); flex-shrink: 0;
         }
         @media (min-width: 600px) { .thumb { width: 60px; height: 60px; } }
         .thumb img, .thumb video { width: 100%; height: 100%; object-fit: cover; display: block; }
         .thumb .remove {
             position: absolute; top: 4px; right: 4px; width: 19px; height: 19px;
-            background: rgba(8, 10, 16, .8); color: #fff;
-            border: 1px solid rgba(255, 255, 255, .18); border-radius: 50%;
+            background: var(--scrim-2); color: #fff;
+            border: 1px solid var(--line-2); border-radius: 50%;
             cursor: pointer; display: flex; align-items: center; justify-content: center;
             font-size: 10px; z-index: 2; backdrop-filter: blur(4px); touch-action: manipulation;
         }
         .thumb .file-badge {
             position: absolute; bottom: 3px; right: 3px;
-            background: rgba(8, 10, 16, .75); color: #fff;
+            background: var(--scrim-2); color: #fff;
             font-size: 8px; padding: 2px 4px; border-radius: 5px;
             border: 1px solid var(--line); display: flex; align-items: center;
             backdrop-filter: blur(4px);
@@ -691,13 +695,13 @@
         .icon-btn.disabled { opacity: .3; cursor: not-allowed; pointer-events: none; }
         .send-btn {
             width: 38px; height: 38px; border-radius: 50%; border: none;
-            background: var(--grad); color: #fff; cursor: pointer;
+            background: var(--grad); color: var(--on-accent); cursor: pointer;
             display: flex; align-items: center; justify-content: center;
             font-size: 16px; transition: all .2s; flex-shrink: 0; touch-action: manipulation;
-            box-shadow: 0 4px 14px rgba(139, 92, 246, .35), inset 0 1px 0 rgba(255, 255, 255, .25);
+            box-shadow: 0 4px 14px var(--glow), inset 0 1px 0 var(--line-2);
         }
         .send-btn:active { transform: scale(.92); }
-        .send-btn:not(:disabled):hover { filter: brightness(1.1); transform: scale(1.04); }
+        .send-btn:not(:disabled):hover { filter: brightness(1.15); transform: scale(1.04); }
         .send-btn:disabled { opacity: .5; cursor: not-allowed; pointer-events: none; }
         .send-btn.mic-mode { background: transparent; border: 1px solid var(--line-2); color: var(--text-2); box-shadow: none; }
         .send-btn.mic-mode:hover { background: var(--surface-2); color: var(--text); }
@@ -716,7 +720,7 @@
         .listening-pill {
             position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%);
             display: none; align-items: center; gap: 9px;
-            background: rgba(40, 16, 20, .95); border: 1px solid rgba(251, 113, 133, .4);
+            background: var(--surface-2); border: 1px solid var(--line-2);
             border-radius: 999px; padding: 8px 16px;
             font-size: 12.5px; font-weight: 500; color: var(--text);
             box-shadow: var(--shadow-md); backdrop-filter: blur(12px); white-space: nowrap;
@@ -765,7 +769,7 @@
         @keyframes msg-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
         @keyframes overlay-in { from { opacity: 0; } to { opacity: 1; } }
         @keyframes panel-pop { from { opacity: 0; transform: translateX(-50%) translateY(-8px) scale(.98); } to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); } }
-        @keyframes glow { 0% { background: rgba(139, 92, 246, .18); border-radius: 14px; } 100% { background: transparent; } }
+        @keyframes glow { 0% { background: var(--glow-soft); border-radius: 14px; } 100% { background: transparent; } }
         @keyframes caret-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
         @keyframes mic-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(251, 113, 133, .35); } 50% { box-shadow: 0 0 0 7px rgba(251, 113, 133, 0); } }
         @keyframes live-blink { 0%, 100% { opacity: 1; } 50% { opacity: .4; } }
@@ -923,6 +927,10 @@
             <a href="/multiai.apk" download class="download-btn" id="downloadApkBtn">
                 <span class="ic" data-icon="smartphone"></span> Download APK
             </a>
+            <button class="theme-toggle" id="themeToggleBtn" aria-label="Toggle dark / light mode">
+                <span class="ic" id="themeToggleIcon"></span>
+                <span id="themeToggleLabel">Dark mode</span>
+            </button>
             <div class="footer-note">
                 <span class="ic" data-icon="key"></span> API keys from .env
                 <span class="footer-legend">
@@ -1095,15 +1103,15 @@
         function ensureApiBase() {
             if (!isCapacitor || localStorage.getItem('merj_api_base')) return;
             const overlay = document.createElement('div');
-            overlay.style.cssText = 'position:fixed;inset:0;z-index:600;background:rgba(3,4,8,.7);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:20px;';
+            overlay.style.cssText = 'position:fixed;inset:0;z-index:600;background:var(--scrim);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:20px;';
             overlay.innerHTML =
-                '<div style="width:min(100%,380px);background:#2b2b31;border:1px solid rgba(255,255,255,.16);border-radius:16px;padding:22px;box-shadow:0 24px 64px rgba(0,0,0,.5);font-family:inherit;color:#ececf1;text-align:center;">' +
-                    '<div style="font-size:16px;font-weight:700;margin-bottom:8px;">Connect to Merj server</div>' +
-                    '<div style="font-size:12.5px;color:#7e7e88;line-height:1.6;margin-bottom:14px;">Enter the address where the server is running, e.g. <strong style="color:#a78bfa;">http://192.168.1.5:3001</strong>. Your phone and the server must be on the same network.</div>' +
-                    '<input id="apiBaseInput" type="text" placeholder="http://192.168.1.5:3001" style="width:100%;padding:11px 13px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:#232329;color:#ececf1;font-size:13.5px;outline:none;margin-bottom:12px;font-family:inherit;">' +
+                '<div style="width:min(100%,380px);background:var(--surface);border:1px solid var(--line-2);border-radius:16px;padding:22px;box-shadow:var(--shadow-lg);font-family:inherit;color:var(--text);text-align:center;">' +
+                    '<div style="font-size:16px;font-weight:500;margin-bottom:8px;">Connect to Merj server</div>' +
+                    '<div style="font-size:12.5px;color:var(--text-3);line-height:1.6;margin-bottom:14px;">Enter the address where the server is running, e.g. <strong style="color:var(--text-2);">http://192.168.1.5:3001</strong>. Your phone and the server must be on the same network.</div>' +
+                    '<input id="apiBaseInput" type="text" placeholder="http://192.168.1.5:3001" style="width:100%;padding:11px 13px;border-radius:10px;border:1px solid var(--line-2);background:var(--bg-2);color:var(--text);font-size:13.5px;outline:none;margin-bottom:12px;font-family:inherit;">' +
                     '<div style="display:flex;gap:9px;">' +
-                        '<button id="apiBaseSave" style="flex:1;padding:10px;border-radius:10px;border:none;background:linear-gradient(135deg,#818cf8 0%,#8b5cf6 55%,#22d3ee 130%);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Save</button>' +
-                        '<button id="apiBaseSkip" style="flex:1;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:transparent;color:#b3b3bc;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Skip</button>' +
+                        '<button id="apiBaseSave" style="flex:1;padding:10px;border-radius:10px;border:none;background:var(--grad);color:var(--on-accent);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;">Save</button>' +
+                        '<button id="apiBaseSkip" style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--line-2);background:transparent;color:var(--text-2);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;">Skip</button>' +
                     '</div>' +
                 '</div>';
             document.body.appendChild(overlay);
@@ -1698,7 +1706,7 @@
                 mw.style.cssText = "display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;";
                 mediaList.forEach(media => {
                     const item = document.createElement("div");
-                    item.style.cssText = "border-radius:12px;overflow:hidden;max-width:140px;max-height:140px;border:1px solid var(--line);background:#101014;";
+                    item.style.cssText = "border-radius:12px;overflow:hidden;max-width:140px;max-height:140px;border:1px solid var(--line);background:var(--code-bg);";
                     if (media.type === "video") {
                         const v = document.createElement("video");
                         v.src = media.previewUrl;
@@ -1871,12 +1879,15 @@
         });
 
         // ============================================================
-        //  VOICE INPUT (Web Speech API)
+        //  VOICE INPUT (Web Speech API + native plugin for APK)
         // ============================================================
         const SpeechRecognitionImpl = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const NativeSpeechRecognition = isCapacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.SpeechRecognition;
+        const voiceEngine = NativeSpeechRecognition ? 'native' : (SpeechRecognitionImpl ? 'web' : null);
         let recognition = null;
         let isListening = false;
         let stopAutoSend = false;
+        let nativeRecognitionReady = false;
 
         els.voiceLang.value = localStorage.getItem('merj_voice_lang') || 'auto';
         els.voiceLang.addEventListener('change', () => {
@@ -1894,6 +1905,7 @@
         }
 
         function ensureRecognition() {
+            if (voiceEngine !== 'web') return false;
             if (!SpeechRecognitionImpl) return false;
             if (!recognition) {
                 recognition = new SpeechRecognitionImpl();
@@ -1948,6 +1960,41 @@
             return true;
         }
 
+        async function ensureNativeRecognition() {
+            if (voiceEngine !== 'native' || nativeRecognitionReady) return;
+            nativeRecognitionReady = true;
+
+            NativeSpeechRecognition.addListener('partialResults', (data) => {
+                const text = (data.matches && data.matches[0]) || '';
+                if (text) {
+                    els.userInput.value = text;
+                    autoGrow();
+                    refreshSendBtn();
+                }
+            });
+
+            NativeSpeechRecognition.addListener('results', (data) => {
+                const text = (data.matches && data.matches[0]) || '';
+                const hadText = text.trim().length > 0;
+                if (text) {
+                    els.userInput.value = text;
+                    autoGrow();
+                    refreshSendBtn();
+                }
+                stopListeningUI();
+                if (hadText && !stopAutoSend) {
+                    sendMessage();
+                }
+                stopAutoSend = false;
+            });
+
+            NativeSpeechRecognition.addListener('listeningState', (data) => {
+                if (!data.listening && isListening) {
+                    stopListeningUI();
+                }
+            });
+        }
+
         function setListeningUI(on) {
             els.composer.classList.toggle("listening", on);
             els.listeningPill.classList.toggle("show", on);
@@ -1960,12 +2007,62 @@
             }
         }
 
-        function startListening() {
+        async function startListening() {
+            if (!voiceEngine) {
+                showToast("Voice input isn't supported here. Use Chrome/Edge on desktop, or the Merj app on Android.", "error");
+                return;
+            }
+            if (isListening) return;
+
+            if (voiceEngine === 'native') {
+                try {
+                    const avail = await NativeSpeechRecognition.available();
+                    if (!avail.available) {
+                        showToast("Speech recognition is not available on this device.", "error");
+                        return;
+                    }
+                    const perms = await NativeSpeechRecognition.requestPermissions();
+                    if (perms.speechRecognition && perms.speechRecognition !== 'granted') {
+                        showToast("Microphone access denied. Allow mic permission in the app settings.", "error");
+                        return;
+                    }
+                    await ensureNativeRecognition();
+                    stopAutoSend = false;
+                    isListening = true;
+                    setListeningUI(true);
+                    refreshSendBtn();
+                    try {
+                        await NativeSpeechRecognition.start({
+                            language: getRecognitionLang(),
+                            maxResults: 1,
+                            partialResults: true,
+                            popup: false
+                        });
+                    } catch (e) {
+                        // retry with the device default language
+                        try {
+                            await NativeSpeechRecognition.start({
+                                language: '',
+                                maxResults: 1,
+                                partialResults: true,
+                                popup: false
+                            });
+                        } catch (e2) {
+                            stopListeningUI();
+                            showToast("Could not start voice input: " + (e2.message || e2), "error");
+                        }
+                    }
+                } catch (e) {
+                    stopListeningUI();
+                    showToast("Voice error: " + (e.message || e), "error");
+                }
+                return;
+            }
+
             if (!SpeechRecognitionImpl) {
                 showToast("Voice input isn't supported in this browser. Use Chrome or Edge.", "error");
                 return;
             }
-            if (isListening) return;
             ensureRecognition();
             recognition.lang = getRecognitionLang();
             stopAutoSend = false;
@@ -1987,8 +2084,12 @@
 
         function stopListening() {
             stopAutoSend = true;
-            if (recognition && isListening) {
-                try { recognition.stop(); } catch (e) { /* ignore */ }
+            if (isListening) {
+                if (voiceEngine === 'native') {
+                    try { NativeSpeechRecognition.stop(); } catch (e) { /* ignore */ }
+                } else if (recognition) {
+                    try { recognition.stop(); } catch (e) { /* ignore */ }
+                }
             }
             stopListeningUI();
         }
@@ -2002,7 +2103,7 @@
         //  BACKEND (with streaming)
         // ============================================================
         async function streamReply(provider, model, msgs, onContent) {
-            const res = await fetch("/api/chat/stream", {
+            const res = await safeFetch(apiUrl("/api/chat/stream"), {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ provider, model, messages: msgs })
@@ -2245,6 +2346,33 @@
                 sendMessage();
             });
         });
+
+        // ============================================================
+        //  THEME (dark / light)
+        // ============================================================
+        const themeToggleBtn = document.getElementById("themeToggleBtn");
+        const themeToggleIcon = document.getElementById("themeToggleIcon");
+        const themeToggleLabel = document.getElementById("themeToggleLabel");
+        function applyTheme(theme, persist = true) {
+            document.documentElement.setAttribute("data-theme", theme);
+            if (persist) localStorage.setItem("mc-theme", theme);
+            const isDark = theme === "dark";
+            themeToggleIcon.innerHTML = icon(isDark ? 'sun' : 'moon');
+            themeToggleLabel.textContent = isDark ? "Light mode" : "Dark mode";
+            const meta = document.querySelector('meta[name="theme-color"]');
+            if (meta) meta.setAttribute("content", isDark ? "#0a0a0a" : "#f6f6f6");
+        }
+        function initTheme() {
+            const stored = localStorage.getItem("mc-theme");
+            const theme = stored || (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+            applyTheme(theme, false);
+        }
+        themeToggleBtn.addEventListener("click", () => {
+            const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+            applyTheme(next);
+            showToast(next === "dark" ? "Dark mode on" : "Light mode on", "success");
+        });
+        initTheme();
 
         // ============================================================
         //  DONE

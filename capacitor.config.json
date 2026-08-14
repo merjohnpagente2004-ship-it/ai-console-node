@@ -26,6 +26,7 @@
       "INTERNET",
       "ACCESS_NETWORK_STATE",
       "CAMERA",
+      "RECORD_AUDIO",
       "READ_MEDIA_IMAGES",
       "READ_MEDIA_VIDEO",
       "READ_EXTERNAL_STORAGE",
