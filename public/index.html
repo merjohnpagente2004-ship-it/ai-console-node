@@ -2023,16 +2023,6 @@
             <span class="status" id="dot-grok"></span>
         </button>
 
-        <!-- ZenMux -->
-        <button class="provider-item" data-provider="zenmux">
-            <span class="provider-icon">
-                <img src="/images/zenmux-logo.png" alt="ZenMux" onerror="this.style.display='none'">
-            </span>
-            ZenMux
-            <span class="free-badge">FREE</span>
-            <span class="status" id="dot-zenmux"></span>
-        </button>
-
         <div class="nav-label" style="display:flex;justify-content:space-between;padding-right:4px;">
             <span>History</span>
             <span style="font-weight:400;text-transform:none;font-size:10px;color:var(--text-muted);" id="chatCount">0 chats</span>
@@ -2142,9 +2132,6 @@
             ],
             grok: [
                 { id: "grok-4.3", label: "Grok 4.3" }
-            ],
-            zenmux: [
-                { id: "anthropic/claude-fable-5-free", label: "Claude Fable 5" }
             ]
         };
 
@@ -2299,7 +2286,6 @@
                 setDot("groq", status.groqConfigured);
                 setDot("openrouter", status.openrouterConfigured);
                 setDot("grok", status.grokConfigured);
-                setDot("zenmux", status.zenmuxConfigured);
             } catch (_) { console.warn("Status fetch failed"); }
         }
 

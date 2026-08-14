@@ -102,14 +102,6 @@ const PROVIDERS = {
     models: ["grok-4.3"],
     free: false,
     docs: "https://docs.x.ai"
-  },
-  zenmux: {
-    name: "ZenMux",
-    endpoint: "https://zenmux.ai/api/v1/chat/completions",
-    models: [
-      "anthropic/claude-fable-5-free"
-    ],
-    free: true
   }
 };
 
@@ -120,7 +112,6 @@ app.get("/api/status", (req, res) => {
     groqConfigured: Boolean(process.env.GROQ_API_KEY),
     openrouterConfigured: Boolean(process.env.OPENROUTER_API_KEY),
     grokConfigured: Boolean(process.env.GROK_API_KEY),
-    zenmuxConfigured: Boolean(process.env.ZENMUX_API_KEY),
     providers: PROVIDERS
   });
 });
@@ -161,8 +152,7 @@ app.post("/api/chat", async (req, res) => {
     } else if (
       provider === "groq" ||
       provider === "openrouter" ||
-      provider === "grok" ||
-      provider === "zenmux"
+      provider === "grok"
     ) {
       reply = await callOpenAICompatible(model, messages, PROVIDERS[provider].endpoint, apiKey, provider);
     } else {
@@ -401,7 +391,6 @@ app.listen(PORT, () => {
   console.log(`Status:`);
   console.log(`   Gemini: ${Boolean(process.env.GEMINI_API_KEY) ? "OK" : "MISSING"}`);
   console.log(`   Groq: ${Boolean(process.env.GROQ_API_KEY) ? "OK" : "MISSING"}`);
-  console.log(`   ZenMux: ${Boolean(process.env.ZENMUX_API_KEY) ? "OK" : "MISSING"}`);
   console.log(`   OpenRouter: ${Boolean(process.env.OPENROUTER_API_KEY) ? "OK" : "MISSING"}`);
   console.log(`APK Download available at: http://localhost:${PORT}/multiai.apk`);
   console.log(`APK Info: http://localhost:${PORT}/api/apk-info`);
