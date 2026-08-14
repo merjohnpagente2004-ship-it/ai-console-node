@@ -2585,6 +2585,21 @@
         };
 
         // ============================================================
+        //  POLISH: scroll-to-bottom button (wired before INIT so
+        //  scrollToBottom() can safely call updateScrollBtn())
+        // ============================================================
+        const scrollBottomBtn = document.getElementById("scrollBottomBtn");
+        function updateScrollBtn() {
+            const s = els.chatScroll;
+            const nearBottom = s.scrollHeight - s.scrollTop - s.clientHeight < 140;
+            scrollBottomBtn.classList.toggle("visible", !nearBottom && s.scrollHeight > s.clientHeight + 80);
+        }
+        els.chatScroll.addEventListener("scroll", updateScrollBtn, { passive: true });
+        scrollBottomBtn.addEventListener("click", () => {
+            els.chatScroll.scrollTo({ top: els.chatScroll.scrollHeight, behavior: "smooth" });
+        });
+
+        // ============================================================
         //  SIDEBAR
         // ============================================================
         function isMobile() { return window.innerWidth <= 900; }
@@ -3399,20 +3414,6 @@
                 setTimeout(() => t.remove(), 350);
             }, 2200);
         }
-
-        // ============================================================
-        //  POLISH: scroll-to-bottom button
-        // ============================================================
-        const scrollBottomBtn = document.getElementById("scrollBottomBtn");
-        function updateScrollBtn() {
-            const s = els.chatScroll;
-            const nearBottom = s.scrollHeight - s.scrollTop - s.clientHeight < 140;
-            scrollBottomBtn.classList.toggle("visible", !nearBottom && s.scrollHeight > s.clientHeight + 80);
-        }
-        els.chatScroll.addEventListener("scroll", updateScrollBtn, { passive: true });
-        scrollBottomBtn.addEventListener("click", () => {
-            els.chatScroll.scrollTo({ top: els.chatScroll.scrollHeight, behavior: "smooth" });
-        });
 
         // ============================================================
         //  POLISH: topbar provider badge (kept in sync with provider)
