@@ -90,6 +90,16 @@
             <span class="status" id="dot-grok"></span>
         </button>
 
+        <button class="provider-item" data-provider="nvidia">
+            <span class="provider-icon">
+                <span class="provider-initial">N</span>
+                <img src="/images/nvidia-logo.png" alt="NVIDIA" onerror="this.style.display='none'">
+            </span>
+            NVIDIA
+            <span class="free-badge">FREE</span>
+            <span class="status" id="dot-nvidia"></span>
+        </button>
+
         <div class="nav-label">History</div>
         <a class="history-link" href="/history.html" id="historyLink">
             <span class="ic" data-icon="clock"></span> All conversations
@@ -283,11 +293,18 @@
             ],
             openrouter: [
                 { id: "openrouter/free", label: "Auto Free Router" },
-                { id: "openai/gpt-oss-120b:free", label: "GPT-OSS 120B" },
+                { id: "openai/gpt-oss-20b:free", label: "GPT-OSS 20B" },
+                { id: "nvidia/nemotron-3-super-120b-a12b:free", label: "NVIDIA Nemotron 3 Super" },
+                { id: "nvidia/nemotron-3-nano-30b-a3b:free", label: "NVIDIA Nemotron 3 Nano" },
                 { id: "google/gemma-4-31b-it:free", label: "Gemma 4 31B" }
             ],
             grok: [
                 { id: "grok-4.3", label: "Grok 4.3" }
+            ],
+            nvidia: [
+                { id: "nvidia/nemotron-3-super-120b-a12b", label: "Nemotron 3 Super 120B" },
+                { id: "nvidia/llama-3.3-nemotron-super-49b-v1.5", label: "Nemotron Super 49B" },
+                { id: "nvidia/llama-3.1-nemotron-70b-instruct", label: "Nemotron 70B Instruct" }
             ]
         };
 
@@ -309,7 +326,8 @@
         const PROVIDER_ENDPOINTS = {
             groq: "https://api.groq.com/openai/v1/chat/completions",
             openrouter: "https://openrouter.ai/api/v1/chat/completions",
-            grok: "https://api.x.ai/v1/chat/completions"
+            grok: "https://api.x.ai/v1/chat/completions",
+            nvidia: "https://integrate.api.nvidia.com/v1/chat/completions"
         };
 
         function getApiKeys() {
@@ -322,7 +340,8 @@
                 gemini: (stored && stored.gemini) || embedded.gemini || '',
                 groq: (stored && stored.groq) || embedded.groq || '',
                 openrouter: (stored && stored.openrouter) || embedded.openrouter || '',
-                grok: (stored && stored.grok) || embedded.grok || ''
+                grok: (stored && stored.grok) || embedded.grok || '',
+                nvidia: (stored && stored.nvidia) || embedded.nvidia || ''
             };
         }
         function getKeyFor(provider) {
@@ -336,7 +355,7 @@
                 '<div style="width:min(100%,420px);max-height:86vh;overflow-y:auto;background:var(--surface);border:1px solid var(--line-2);border-radius:16px;padding:22px;box-shadow:var(--shadow-lg);font-family:inherit;color:var(--text);">' +
                     '<div style="font-size:16px;font-weight:500;margin-bottom:4px;display:flex;align-items:center;gap:9px;"><span class="ic" style="font-size:17px;color:var(--accent-2);" data-icon="key"></span> AI provider keys</div>' +
                     '<div style="font-size:12.5px;color:var(--text-3);line-height:1.6;margin-bottom:14px;">The app ships with working keys. Only change these if you have your own keys from the provider sites.</div>' +
-                    ['gemini','groq','openrouter','grok'].map(p =>
+                    ['gemini','groq','openrouter','grok','nvidia'].map(p =>
                         '<div style="margin-bottom:10px;">' +
                             '<div style="font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;color:var(--text-3);margin-bottom:4px;">' + p + '</div>' +
                             '<input data-key-field="' + p + '" type="text" placeholder="' + p + ' API key" style="width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line-2);background:var(--bg-2);color:var(--text);font-size:13px;outline:none;font-family:var(--font-mono);">' +
@@ -349,7 +368,7 @@
                 '</div>';
             document.body.appendChild(overlay);
             const keys = getApiKeys();
-            ['gemini','groq','openrouter','grok'].forEach(p => {
+            ['gemini','groq','openrouter','grok','nvidia'].forEach(p => {
                 const field = overlay.querySelector('[data-key-field="' + p + '"]');
                 if (keys[p]) field.value = keys[p];
             });
@@ -357,7 +376,7 @@
             const close = () => overlay.remove();
             overlay.querySelector('#apiKeysSave').addEventListener('click', () => {
                 const out = {};
-                ['gemini','groq','openrouter','grok'].forEach(p => {
+                ['gemini','groq','openrouter','grok','nvidia'].forEach(p => {
                     out[p] = overlay.querySelector('[data-key-field="' + p + '"]').value.trim();
                 });
                 localStorage.setItem('merj_api_keys', JSON.stringify(out));
@@ -372,9 +391,11 @@
             const btn = document.getElementById('apiKeysBtn');
             if (!btn) return;
             btn.style.display = isCapacitor ? 'flex' : 'none';
+            const dl = document.getElementById('downloadApkBtn');
+            if (dl) dl.style.display = isCapacitor ? 'none' : 'flex';
             const status = document.getElementById('apiKeysStatus');
             const keys = getApiKeys();
-            const missing = ['gemini','groq','openrouter','grok'].filter(p => !keys[p]).length;
+            const missing = ['gemini','groq','openrouter','grok','nvidia'].filter(p => !keys[p]).length;
             if (missing === 0) status.textContent = 'In app';
             else if (missing === 4) status.textContent = 'Missing';
             else status.textContent = missing + ' missing';
@@ -646,6 +667,7 @@
                 setDot("groq", status.groqConfigured);
                 setDot("openrouter", status.openrouterConfigured);
                 setDot("grok", status.grokConfigured);
+                setDot("nvidia", status.nvidiaConfigured);
             } catch (_) { console.warn("Status fetch failed"); }
         }
         function setDot(provider, ok) {
@@ -1646,6 +1668,7 @@
         renderHistoryList();
         loadStatus();
         refreshSendBtn();
+        updateApiKeysStatus();
 
         // Force APK download
         document.getElementById('downloadApkBtn')?.addEventListener('click', function(e) {
@@ -1668,7 +1691,8 @@
             gemini: { name: "Gemini", color: "var(--p-gemini)" },
             groq: { name: "Groq", color: "var(--p-groq)" },
             openrouter: { name: "OpenRouter", color: "var(--p-openrouter)" },
-            grok: { name: "Grok", color: "var(--p-grok)" }
+            grok: { name: "Grok", color: "var(--p-grok)" },
+            nvidia: { name: "NVIDIA", color: "var(--p-nvidia)" }
         };
         function syncProviderBadge() {
             const active = document.querySelector(".provider-item.active");

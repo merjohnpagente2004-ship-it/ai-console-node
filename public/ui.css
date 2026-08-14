@@ -37,6 +37,7 @@
     --p-groq: #d6a08a;
     --p-openrouter: #b8a8d6;
     --p-grok: #c0c0c0;
+    --p-nvidia: #9fbf9a;
     --radius: 18px;
     --radius-sm: 12px;
     --sidebar-w: 272px;
@@ -82,6 +83,7 @@
     --p-groq: #b06a45;
     --p-openrouter: #7a5fb0;
     --p-grok: #5a5a5a;
+    --p-nvidia: #4d7a46;
 }
 
 /* ============================================================

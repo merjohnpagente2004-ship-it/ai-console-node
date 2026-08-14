@@ -109,7 +109,6 @@ const PROVIDERS = {
     endpoint: "https://openrouter.ai/api/v1/chat/completions",
     models: [
       "openrouter/free",
-      "openai/gpt-oss-120b:free",
       "openai/gpt-oss-20b:free",
       "nvidia/nemotron-3-super-120b-a12b:free",
       "nvidia/nemotron-3-nano-30b-a3b:free",
@@ -126,6 +125,17 @@ const PROVIDERS = {
     models: ["grok-4.3"],
     free: false,
     docs: "https://docs.x.ai"
+  },
+  nvidia: {
+    name: "NVIDIA",
+    endpoint: "https://integrate.api.nvidia.com/v1/chat/completions",
+    models: [
+      "nvidia/nemotron-3-super-120b-a12b",
+      "nvidia/llama-3.3-nemotron-super-49b-v1.5",
+      "nvidia/llama-3.1-nemotron-70b-instruct"
+    ],
+    free: true,
+    docs: "https://build.nvidia.com"
   }
 };
 
@@ -136,6 +146,7 @@ app.get("/api/status", (req, res) => {
     groqConfigured: Boolean(process.env.GROQ_API_KEY),
     openrouterConfigured: Boolean(process.env.OPENROUTER_API_KEY),
     grokConfigured: Boolean(process.env.GROK_API_KEY),
+    nvidiaConfigured: Boolean(process.env.NVIDIA_API_KEY),
     providers: PROVIDERS
   });
 });
@@ -176,7 +187,8 @@ app.post("/api/chat", async (req, res) => {
       } else if (
       provider === "groq" ||
       provider === "openrouter" ||
-      provider === "grok"
+      provider === "grok" ||
+      provider === "nvidia"
     ) {
       reply = await callOpenAICompatible(model, messages, PROVIDERS[provider].endpoint, apiKey, provider);
     } else {
@@ -416,6 +428,8 @@ app.listen(PORT, () => {
   console.log(`   Gemini: ${Boolean(process.env.GEMINI_API_KEY) ? "OK" : "MISSING KEY"}`);
   console.log(`   Groq: ${Boolean(process.env.GROQ_API_KEY) ? "OK" : "MISSING KEY"}`);
   console.log(`   OpenRouter: ${Boolean(process.env.OPENROUTER_API_KEY) ? "OK" : "MISSING KEY"}`);
+  console.log(`   Grok: ${Boolean(process.env.GROK_API_KEY) ? "OK" : "MISSING KEY"}`);
+  console.log(`   NVIDIA: ${Boolean(process.env.NVIDIA_API_KEY) ? "OK" : "MISSING KEY"}`);
   console.log(`\n[APK] Download available at: http://localhost:${PORT}/multiai.apk`);
   console.log(`[APK] Info: http://localhost:${PORT}/api/apk-info`);
   console.log(`\n[OpenRouter] Free Models:`);
